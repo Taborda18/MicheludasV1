@@ -1,9 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Dashboard.css';
 import logo from '../../assets/images/logo-micheludos.webp';
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState('mesas');
+  // Iniciar colapsado en mobile, expandido en desktop
+  const [isCollapsed, setIsCollapsed] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      // Auto colapsar en mobile, auto expandir en desktop
+      if (window.innerWidth > 768) {
+        setIsCollapsed(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const menuItems = [
     { id: 'mesas', label: 'Mesas' },
@@ -24,8 +38,17 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
+      {/* Toggle Button - Fuera del sidebar para que siempre sea visible */}
+      <button 
+        className="toggle-sidebar-btn" 
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        aria-label={isCollapsed ? 'Expandir menú' : 'Colapsar menú'}
+      >
+        <span className="toggle-icon">{isCollapsed ? '☰' : '✕'}</span>
+      </button>
+
       {/* Sidebar */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
         <div className="logo-container">
           <img src={logo} alt="Micheludos Logo" className="dashboard-logo" />
         </div>

@@ -1,54 +1,215 @@
-# Micheludas Backend
+# Micheludas Backend API
 
-This is the backend part of the Micheludas project, built using Node.js and Express. The backend is responsible for handling API requests, managing data, and connecting to the database.
+API REST para el sistema de gestión de bar Micheludas. Construido con Node.js, Express y PostgreSQL.
 
-## Project Structure
+## 🚀 Tecnologías
 
-- **src/**: Contains the source code for the backend application.
-  - **app.js**: Entry point of the application, initializes the Express app and sets up middleware and routes.
-  - **config/**: Contains configuration files.
-    - **database.js**: Database connection configuration.
-  - **controllers/**: Contains the logic for handling requests.
-    - **orderController.js**: Handles order-related requests.
-    - **productController.js**: Handles product-related requests.
-    - **tableController.js**: Handles table-related requests.
-  - **models/**: Contains the data models.
-    - **Order.js**: Defines the Order model.
-    - **Product.js**: Defines the Product model.
-    - **Table.js**: Defines the Table model.
-  - **routes/**: Contains route definitions.
-    - **orderRoutes.js**: Routes for order-related operations.
-    - **productRoutes.js**: Routes for product-related operations.
-    - **tableRoutes.js**: Routes for table-related operations.
-  - **middleware/**: Contains middleware functions.
-    - **errorHandler.js**: Middleware for handling errors.
+- **Node.js** - Runtime de JavaScript
+- **Express** - Framework web
+- **PostgreSQL** - Base de datos relacional
+- **JWT** - Autenticación con tokens
+- **bcrypt** - Encriptación de contraseñas
+- **CORS** - Cross-Origin Resource Sharing
 
-## Getting Started
+## 📁 Estructura del Proyecto
 
-1. Clone the repository:
-   ```
-   git clone https://github.com/Taborda18/MicheludasV1.git
-   ```
+```
+backend/
+├── src/
+│   ├── app.js                 # Punto de entrada de la aplicación
+│   ├── config/
+│   │   └── database.js        # Configuración de PostgreSQL
+│   ├── controllers/           # Lógica de negocio
+│   │   ├── userController.js
+│   │   ├── roleController.js
+│   │   ├── productController.js
+│   │   ├── inventoryController.js
+│   │   ├── supplierController.js
+│   │   ├── orderSessionController.js
+│   │   ├── ticketController.js
+│   │   ├── ticketDetailController.js
+│   │   └── invoiceController.js
+│   ├── models/                # Modelos de datos
+│   │   ├── User.js
+│   │   ├── Role.js
+│   │   ├── Product.js
+│   │   ├── Inventory.js
+│   │   ├── Supplier.js
+│   │   ├── OrderSession.js
+│   │   ├── Ticket.js
+│   │   ├── TicketDetail.js
+│   │   └── Invoice.js
+│   ├── routes/                # Definición de rutas
+│   │   ├── userRoutes.js
+│   │   ├── roleRoutes.js
+│   │   ├── productRoutes.js
+│   │   ├── inventoryRoutes.js
+│   │   ├── supplierRoutes.js
+│   │   ├── orderSessionRoutes.js
+│   │   ├── tableRoutes.js
+│   │   ├── ticketRoutes.js
+│   │   ├── ticketDetailRoutes.js
+│   │   └── invoiceRoutes.js
+│   ├── middleware/            # Middlewares
+│   │   ├── authMiddleware.js  # Verificación de tokens y roles
+│   │   └── errorHandler.js    # Manejo de errores
+│   └── utils/                 # Utilidades
+│       ├── hashHelper.js      # Encriptación bcrypt
+│       └── jwtHelper.js       # Generación y verificación JWT
+├── database/                  # Scripts de base de datos
+├── package.json
+└── README.md
+```
 
-2. Navigate to the backend directory:
-   ```
-   cd MicheludasV1/backend
-   ```
+## ⚙️ Configuración
 
-3. Install dependencies:
-   ```
-   npm install
-   ```
+### 1. Variables de Entorno
 
-4. Start the server:
-   ```
-   npm start
-   ```
+Crea un archivo `.env` en la raíz del proyecto (no en la carpeta backend) con:
 
-## API Documentation
+```env
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=postgres
+DB_USER=postgres
+DB_PASSWORD=tu_contraseña
 
-Refer to the individual route files for details on the available API endpoints and their usage.
+# JWT Configuration
+JWT_SECRET=tu_clave_secreta_jwt
+JWT_EXPIRES_IN=24h
 
-## License
+# Server Configuration
+PORT=5000
+```
 
-This project is licensed under the ISC License.
+### 2. Base de Datos
+
+Asegúrate de tener PostgreSQL instalado y corriendo:
+
+```bash
+# Verificar que PostgreSQL está corriendo
+psql --version
+
+# Conectar a PostgreSQL
+psql -U postgres
+```
+
+## 🔧 Instalación
+
+```bash
+# Instalar dependencias
+npm install
+
+# Modo desarrollo (con nodemon)
+npm run dev
+
+# Modo producción
+npm start
+```
+
+## 📡 API Endpoints
+
+### Autenticación
+- `POST /api/users/login` - Iniciar sesión
+- Retorna: `{ token, user }`
+
+### Usuarios
+- `GET /api/users` - Listar todos los usuarios
+- `GET /api/users/:id` - Obtener un usuario
+- `POST /api/users` - Crear usuario (contraseña encriptada automáticamente)
+- `PUT /api/users/:id` - Actualizar usuario
+- `DELETE /api/users/:id` - Eliminar usuario
+
+### Roles
+- `GET /api/roles` - Listar roles
+- `GET /api/roles/:id` - Obtener rol
+- `POST /api/roles` - Crear rol
+- `PUT /api/roles/:id` - Actualizar rol
+- `DELETE /api/roles/:id` - Eliminar rol
+
+### Productos
+- `GET /api/products` - Listar productos
+- `GET /api/products/active` - Productos activos
+- `GET /api/products/:id` - Obtener producto
+- `POST /api/products` - Crear producto
+- `PUT /api/products/:id` - Actualizar producto
+- `PUT /api/products/:id/toggle` - Activar/desactivar producto
+- `DELETE /api/products/:id` - Eliminar producto
+
+### Inventario
+- `GET /api/inventory` - Listar inventario
+- `GET /api/inventory/:id` - Obtener item de inventario
+- `POST /api/inventory` - Crear item
+- `PUT /api/inventory/:id` - Actualizar item
+- `DELETE /api/inventory/:id` - Eliminar item
+
+### Proveedores
+- `GET /api/suppliers` - Listar proveedores
+- `GET /api/suppliers/:id` - Obtener proveedor
+- `POST /api/suppliers` - Crear proveedor
+- `PUT /api/suppliers/:id` - Actualizar proveedor
+- `DELETE /api/suppliers/:id` - Eliminar proveedor
+
+### Sesiones de Orden (Mesas)
+- `GET /api/order-sessions` - Listar sesiones
+- `GET /api/order-sessions/:id` - Obtener sesión
+- `POST /api/order-sessions` - Crear sesión
+- `PUT /api/order-sessions/:id` - Actualizar sesión
+- `DELETE /api/order-sessions/:id` - Eliminar sesión
+
+### Tickets
+- `GET /api/tickets` - Listar tickets
+- `GET /api/tickets/:id` - Obtener ticket
+- `POST /api/tickets` - Crear ticket
+- `PUT /api/tickets/:id` - Actualizar ticket
+- `DELETE /api/tickets/:id` - Eliminar ticket
+
+### Detalles de Ticket
+- `GET /api/ticket-details` - Listar detalles
+- `GET /api/ticket-details/:id` - Obtener detalle
+- `POST /api/ticket-details` - Crear detalle
+- `PUT /api/ticket-details/:id` - Actualizar detalle
+- `DELETE /api/ticket-details/:id` - Eliminar detalle
+
+### Facturas
+- `GET /api/invoices` - Listar facturas
+- `GET /api/invoices/:id` - Obtener factura
+- `POST /api/invoices` - Crear factura
+- `PUT /api/invoices/:id` - Actualizar factura
+- `DELETE /api/invoices/:id` - Eliminar factura
+
+## 🔒 Seguridad
+
+- **Contraseñas**: Encriptadas con bcrypt (10 salt rounds)
+- **JWT**: Tokens con expiración configurable (default 24h)
+- **Middleware de autenticación**: Protección de rutas sensibles
+- **Roles**: Control de acceso basado en roles (Admin, Usuario)
+
+## 🧪 Pruebas con Postman
+
+1. Crear un usuario:
+```json
+POST http://localhost:5000/api/users
+{
+  "username": "admin",
+  "email": "admin@micheludas.com",
+  "password": "123456",
+  "role_id": 1
+}
+```
+
+2. Iniciar sesión:
+```json
+POST http://localhost:5000/api/users/login
+{
+  "username": "admin",
+  "password": "123456"
+}
+```
+
+3. Usar el token retornado en el header `Authorization: Bearer <token>`
+
+## 📝 Licencia
+
+ISC License
