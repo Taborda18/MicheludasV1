@@ -35,10 +35,20 @@ class User {
 
     static async update(id, userData) {
         const { username, password_hash, role_id } = userData;
-        const result = await pool.query(
-            'UPDATE users SET username = $1, password_hash = $2, role_id = $3 WHERE id = $4 RETURNING id, username, role_id',
-            [username, password_hash, role_id, id]
-        );
+        
+        // Si no hay password_hash, no actualizar ese campo
+        let query;
+        let params;
+        
+        if (password_hash) {
+            query = 'UPDATE users SET username = $1, password_hash = $2, role_id = $3 WHERE id = $4 RETURNING id, username, role_id';
+            params = [username, password_hash, role_id, id];
+        } else {
+            query = 'UPDATE users SET username = $1, role_id = $2 WHERE id = $3 RETURNING id, username, role_id';
+            params = [username, role_id, id];
+        }
+        
+        const result = await pool.query(query, params);
         return result.rows[0];
     }
 

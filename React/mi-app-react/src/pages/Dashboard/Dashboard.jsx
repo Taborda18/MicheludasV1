@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import './Dashboard.css';
 import logo from '../../assets/images/logo-micheludos.webp';
+import Users from '../Users/Users';
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState('mesas');
@@ -126,10 +127,7 @@ const Dashboard = () => {
           )}
           
           {activeSection === 'administrador_de_usuarios' && (
-            <div className="section-placeholder">
-              <h2>Configuración</h2>
-              <p>Gestión de configuración y usuarios</p>
-            </div>
+            <Users />
           )}
         </div>
       </main>
