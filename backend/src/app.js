@@ -1,34 +1,68 @@
+require('dotenv').config();
 const express = require('express');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-const orderRoutes = require('./routes/orderRoutes');
+const cors = require('cors');
+const { connectDB } = require('./config/database');
+
+// Importar rutas
+const roleRoutes = require('./routes/roleRoutes');
+const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
-const tableRoutes = require('./routes/tableRoutes');
-const errorHandler = require('./middleware/errorHandler');
+const orderSessionRoutes = require('./routes/orderSessionRoutes');
+const ticketRoutes = require('./routes/ticketRoutes');
+const ticketDetailRoutes = require('./routes/ticketDetailRoutes');
+const invoiceRoutes = require('./routes/invoiceRoutes');
+const inventoryRoutes = require('./routes/inventoryRoutes');
+const supplierRoutes = require('./routes/supplierRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// Middlewares
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.use('/api/orders', orderRoutes);
+// Rutas
+app.use('/api/roles', roleRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
-app.use('/api/tables', tableRoutes);
+app.use('/api/sessions', orderSessionRoutes);
+app.use('/api/tickets', ticketRoutes);
+app.use('/api/ticket-details', ticketDetailRoutes);
+app.use('/api/invoices', invoiceRoutes);
+app.use('/api/inventory', inventoryRoutes);
+app.use('/api/suppliers', supplierRoutes);
 
-// Error handling middleware
-app.use(errorHandler);
-
-// Database connection
-mongoose.connect('your_database_connection_string', { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => {
-        console.log('Database connected successfully');
-        app.listen(PORT, () => {
-            console.log(`Server is running on port ${PORT}`);
-        });
-    })
-    .catch(err => {
-        console.error('Database connection error:', err);
+// Ruta de prueba
+app.get('/', (req, res) => {
+    res.json({ 
+        message: 'API Micheludas funcionando',
+        endpoints: {
+            roles: '/api/roles',
+            users: '/api/users',
+            products: '/api/products',
+            sessions: '/api/sessions',
+            tickets: '/api/tickets',
+            ticketDetails: '/api/ticket-details',
+            invoices: '/api/invoices',
+            inventory: '/api/inventory',
+            suppliers: '/api/suppliers'
+        }
     });
+});
+
+// Conectar a la base de datos e iniciar servidor
+const startServer = async () => {
+    try {
+        await connectDB();
+        app.listen(PORT, () => {
+            console.log(`✅ Server running on port ${PORT}`);
+            console.log(`🌐 API available at http://localhost:${PORT}`);
+        });
+    } catch (error) {
+        console.error('❌ Failed to start server:', error.message);
+        process.exit(1);
+    }
+};
+
+startServer();
