@@ -1,36 +1,80 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/authService';
+import Modal from '../../components/common/Modal';
 import logo from '../../assets/images/logo-micheludos.webp';
 import './Login.css';
 
 function Login() {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         username: '',
         password: '',
     });
-    const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [modal, setModal] = useState({
+        isOpen: false,
+        type: 'info',
+        title: '',
+        message: ''
+    });
 
     const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value,
         });
-        setError('');
+    };
+
+    const showModal = (type, title, message) => {
+        setModal({
+            isOpen: true,
+            type,
+            title,
+            message
+        });
+    };
+
+    const closeModal = () => {
+        const wasSuccess = modal.type === 'success';
+        setModal({
+            ...modal,
+            isOpen: false
+        });
+        if (wasSuccess) {
+            navigate('/dashboard');
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setError('');
 
         try {
             const response = await authService.login(formData.username, formData.password);
-            console.log('Login exitoso:', response);
-            // Aquí puedes redirigir al usuario o actualizar el estado global
-            alert('Login exitoso!');
+            showModal(
+                'success',
+                '¡Login Exitoso!',
+                `Bienvenido ${response.user.username}. Has iniciado sesión correctamente.`
+            );
         } catch (err) {
-            setError(err.response?.data?.message || 'Error al iniciar sesión');
+            console.error('Error en login:', err);
+            
+            let errorMessage = 'Ocurrió un error inesperado. Por favor, verifica que el servidor esté corriendo.';
+            
+            if (err.response) {
+                // El servidor respondió con un error
+                errorMessage = err.response.data?.message || 'Usuario o contraseña incorrectos.';
+            } else if (err.request) {
+                // La petición fue hecha pero no hubo respuesta
+                errorMessage = 'No se pudo conectar con el servidor. Verifica que el backend esté corriendo en el puerto 5000.';
+            }
+            
+            showModal(
+                'error',
+                'Error de Autenticación',
+                errorMessage
+            );
         } finally {
             setLoading(false);
         }
@@ -72,8 +116,6 @@ function Login() {
                         />
                     </div>
 
-                    {error && <div className="error-message">{error}</div>}
-
                     <button 
                         type="submit" 
                         className="login-button"
@@ -83,6 +125,14 @@ function Login() {
                     </button>
                 </form>
             </div>
+
+            <Modal
+                isOpen={modal.isOpen}
+                onClose={closeModal}
+                type={modal.type}
+                title={modal.title}
+                message={modal.message}
+            />
         </div>
     );
 }

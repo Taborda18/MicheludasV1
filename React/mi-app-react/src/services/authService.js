@@ -1,26 +1,33 @@
 import api from './api';
 
 export const authService = {
-    login: async (username, password) => {
+    async login(username, password) {
         const response = await api.post('/users/login', { username, password });
+        
+        // Guardar token y usuario en localStorage
         if (response.data.token) {
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data.user));
         }
+        
         return response.data;
     },
 
-    logout: () => {
+    logout() {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
     },
 
-    getCurrentUser: () => {
-        const user = localStorage.getItem('user');
-        return user ? JSON.parse(user) : null;
+    getCurrentUser() {
+        const userStr = localStorage.getItem('user');
+        return userStr ? JSON.parse(userStr) : null;
     },
 
-    isAuthenticated: () => {
-        return !!localStorage.getItem('token');
+    getToken() {
+        return localStorage.getItem('token');
+    },
+
+    isAuthenticated() {
+        return !!this.getToken();
     }
 };
