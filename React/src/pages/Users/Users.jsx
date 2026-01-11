@@ -11,6 +11,7 @@ const Users = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [alert, setAlert] = useState({ isOpen: false, type: 'info', title: '', message: '' });
+  const [confirmDelete, setConfirmDelete] = useState({ isOpen: false, user: null });
 
   useEffect(() => {
     fetchUsers();
@@ -52,17 +53,25 @@ const Users = () => {
     setShowModal(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('¿Estás seguro de eliminar este usuario?')) {
-      try {
-        await api.delete(`/users/${id}`);
-        showAlert('success', 'Éxito', 'Usuario eliminado correctamente');
-        fetchUsers();
-      } catch (error) {
-        console.error('Error al eliminar usuario:', error);
-        showAlert('error', 'Error', 'No se pudo eliminar el usuario');
-      }
+  const handleDelete = (user) => {
+    setConfirmDelete({ isOpen: true, user });
+  };
+
+  const confirmDeleteUser = async () => {
+    const user = confirmDelete.user;
+    setConfirmDelete({ isOpen: false, user: null });
+    try {
+      await api.delete(`/users/${user.id}`);
+      showAlert('success', 'Éxito', 'Usuario eliminado correctamente');
+      fetchUsers();
+    } catch (error) {
+      console.error('Error al eliminar usuario:', error);
+      showAlert('error', 'Error', 'No se pudo eliminar el usuario');
     }
+  };
+
+  const cancelDelete = () => {
+    setConfirmDelete({ isOpen: false, user: null });
   };
 
   const handleSaveSuccess = () => {
@@ -124,7 +133,7 @@ const Users = () => {
                     <button className="btn-edit" onClick={() => handleEdit(user)}>
                       Editar
                     </button>
-                    <button className="btn-delete" onClick={() => handleDelete(user.id)}>
+                    <button className="btn-delete" onClick={() => handleDelete(user)}>
                       Eliminar
                     </button>
                   </td>
@@ -151,6 +160,27 @@ const Users = () => {
         title={alert.title}
         message={alert.message}
       />
+
+      {confirmDelete.isOpen && (
+        <div className="modal-overlay" onClick={cancelDelete}>
+          <div className="modal-content confirm-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close-x" onClick={cancelDelete}>✕</button>
+            <div className="modal-icon warning">⚠</div>
+            <h2 className="modal-title">Confirmar eliminación</h2>
+            <p className="modal-message">
+              ¿Estás seguro de eliminar al usuario "{confirmDelete.user?.username}"?
+            </p>
+            <div className="confirm-buttons">
+              <button className="btn-cancel-confirm" onClick={cancelDelete}>
+                Cancelar
+              </button>
+              <button className="btn-delete-confirm" onClick={confirmDeleteUser}>
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

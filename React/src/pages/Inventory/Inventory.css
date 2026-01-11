@@ -1,0 +1,354 @@
+/* Inventory Container */
+.inventory-container {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+}
+
+/* Header */
+.inventory-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid rgba(10, 77, 10, 0.3);
+}
+
+.inventory-header h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 28px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Action Buttons */
+.inventory-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.inventory-actions button {
+  background: linear-gradient(90deg, #0a4d0a 0%, #0d6b0d 100%);
+  color: #ffffff;
+  border: 2px solid #0a4d0a;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(10, 77, 10, 0.3);
+}
+
+.inventory-actions button:hover {
+  background: linear-gradient(90deg, #0d6b0d 0%, #0a4d0a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(10, 77, 10, 0.5);
+}
+
+/* Filter Section */
+.inventory-filter {
+  margin-bottom: 20px;
+}
+
+.inventory-filter input {
+  width: 100%;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(10, 77, 10, 0.3);
+  border-radius: 10px;
+  color: #ffffff;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-sizing: border-box;
+}
+
+.inventory-filter input:focus {
+  outline: none;
+  border-color: #0a4d0a;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 15px rgba(10, 77, 10, 0.3);
+}
+
+.inventory-filter input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Table Container */
+.table-container {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(10, 77, 10, 0.3);
+  overflow-x: auto;
+}
+
+/* Table */
+.inventory-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #ffffff;
+}
+
+.inventory-table thead {
+  background: rgba(10, 77, 10, 0.3);
+}
+
+.inventory-table th {
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 2px solid #0a4d0a;
+}
+
+.inventory-table tbody tr {
+  border-bottom: 1px solid rgba(10, 77, 10, 0.2);
+  transition: all 0.3s ease;
+}
+
+.inventory-table tbody tr:hover {
+  background: rgba(10, 77, 10, 0.1);
+}
+
+.inventory-table td {
+  padding: 15px;
+  font-size: 14px;
+}
+
+/* Product Name Styling */
+.inventory-table td:nth-child(2) {
+  font-weight: 600;
+  color: #0d6b0d;
+}
+
+/* Price Styling */
+.inventory-table td:nth-child(4) {
+  font-weight: 600;
+  color: #4caf50;
+}
+
+/* Stock Badge */
+.stock-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.stock-low {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+  border: 1px solid #f44336;
+}
+
+.stock-medium {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+  border: 1px solid #ffc107;
+}
+
+.stock-high {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border: 1px solid #4caf50;
+}
+
+/* Loading & Empty States */
+.loading-container,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 18px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .inventory-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .inventory-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .inventory-actions button {
+    width: 100%;
+  }
+
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .inventory-table {
+    font-size: 12px;
+  }
+
+  .inventory-table th,
+  .inventory-table td {
+    padding: 10px 8px;
+  }
+}
+
+/* Action Buttons */
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-edit,
+.btn-delete {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.btn-edit {
+  background: rgba(33, 150, 243, 0.2);
+  color: #2196f3;
+  border: 1px solid #2196f3;
+}
+
+.btn-edit:hover {
+  background: rgba(33, 150, 243, 0.3);
+  transform: scale(1.05);
+}
+
+.btn-delete {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+  border: 1px solid #f44336;
+}
+
+.btn-delete:hover {
+  background: rgba(244, 67, 54, 0.3);
+  transform: scale(1.05);
+}
+
+/* Confirm Delete Modal */
+.confirm-modal {
+  position: relative;
+  text-align: center;
+  padding: 30px;
+}
+
+.modal-close-x {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.modal-close-x:hover {
+  color: #f44336;
+}
+
+.modal-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  margin: 0 auto 20px;
+}
+
+.modal-icon.warning {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+  border: 2px solid #ffc107;
+}
+
+.modal-icon.success {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border: 2px solid #4caf50;
+}
+
+.modal-icon.error {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+  border: 2px solid #f44336;
+}
+
+.modal-content {
+  background: #2a2a2a;
+  border-radius: 15px;
+  padding: 30px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.modal-title {
+  color: #ffffff;
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+}
+
+.modal-message {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  margin-bottom: 25px;
+}
+
+.confirm-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.btn-cancel-confirm,
+.btn-delete-confirm {
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.btn-cancel-confirm {
+  background: #444;
+  color: #fff;
+}
+
+.btn-cancel-confirm:hover {
+  background: #555;
+}
+
+.btn-delete-confirm {
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+}
+
+.btn-delete-confirm:hover {
+  background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
+}

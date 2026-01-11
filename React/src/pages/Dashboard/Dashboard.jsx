@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import './Dashboard.css';
 import logo from '../../assets/images/logo-micheludos.webp';
 import Users from '../Users/Users';
+import Inventory from '../Inventory/Inventory';
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState('mesas');
@@ -22,11 +23,11 @@ const Dashboard = () => {
 
   const menuItems = [
     { id: 'mesas', label: 'Mesas' },
-    { id: 'inventario', label: 'Inventario' },
     { id: 'productos', label: 'Productos' },
-    { id: 'ventas', label: 'Ventas' },
     { id: 'ordenes', label: 'Órdenes' },
+    { id: 'ventas', label: 'Ventas' },
     { id: 'reportes', label: 'Reportes' },
+    { id: 'inventario', label: 'Inventario' },
     { id: 'administrador_de_usuarios', label: 'Admin de usuarios' },
   ];
 
@@ -40,8 +41,8 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       {/* Toggle Button - Fuera del sidebar para que siempre sea visible */}
-      <button 
-        className="toggle-sidebar-btn" 
+      <button
+        className="toggle-sidebar-btn"
         onClick={() => setIsCollapsed(!isCollapsed)}
         aria-label={isCollapsed ? 'Expandir menú' : 'Colapsar menú'}
       >
@@ -53,7 +54,7 @@ const Dashboard = () => {
         <div className="logo-container">
           <img src={logo} alt="Micheludos Logo" className="dashboard-logo" />
         </div>
-        
+
         <nav className="menu">
           {menuItems.map((item) => (
             <button
@@ -92,10 +93,7 @@ const Dashboard = () => {
           )}
 
           {activeSection === 'inventario' && (
-            <div className="section-placeholder">
-              <h2>Inventario</h2>
-              <p>Gestión de inventario</p>
-            </div>
+            <Inventory />
           )}
 
           {activeSection === 'productos' && (
@@ -125,7 +123,7 @@ const Dashboard = () => {
               <p>Reportes y estadísticas</p>
             </div>
           )}
-          
+
           {activeSection === 'administrador_de_usuarios' && (
             <Users />
           )}
