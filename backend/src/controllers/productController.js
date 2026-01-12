@@ -75,6 +75,27 @@ const productController = {
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
+    },
+
+    // Obtener inventory disponible (no está en products)
+    getAvailableInventory: async (req, res) => {
+        try {
+            const inventory = await Product.getAvailableInventory();
+            res.json(inventory);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+
+    // Crear producto desde inventory
+    createFromInventory: async (req, res) => {
+        try {
+            const inventoryId = req.params.inventoryId;
+            const newProduct = await Product.createFromInventory(inventoryId, req.body);
+            res.status(201).json(newProduct);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
     }
 };
 

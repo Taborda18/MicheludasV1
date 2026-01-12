@@ -46,6 +46,33 @@ class Product {
         );
         return result.rows[0];
     }
+
+    // Obtener items de inventory que no están en products
+    static async getAvailableInventory() {
+        const result = await pool.query(
+            `SELECT i.* FROM inventory i 
+             WHERE i.id NOT IN (SELECT id FROM products) 
+             ORDER BY i.name`
+        );
+        return result.rows;
+    }
+
+    // Crear producto desde inventory
+    static async createFromInventory(inventoryId, productData) {
+        const { sale_price, is_active = true } = productData;
+        // Obtener el nombre del inventory
+        const inventoryResult = await pool.query('SELECT name FROM inventory WHERE id = $1', [inventoryId]);
+        if (!inventoryResult.rows[0]) {
+            throw new Error('Inventory item not found');
+        }
+        const name = inventoryResult.rows[0].name;
+        
+        const result = await pool.query(
+            'INSERT INTO products (id, name, sale_price, is_active) VALUES ($1, $2, $3, $4) RETURNING *',
+            [inventoryId, name, sale_price, is_active]
+        );
+        return result.rows[0];
+    }
 }
 
 module.exports = Product;

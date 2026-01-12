@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../../services/api';
 import ProviderForm from './ProviderForm';
 import InventoryForm from './InventoryForm';
+import RecipeModal from './RecipeModal';
 import Modal from '../../components/common/Modal';
 import './Inventory.css';
 
@@ -12,7 +13,9 @@ const Inventory = () => {
     const [filteredInventory, setFilteredInventory] = useState([]);
     const [isProviderModalOpen, setIsProviderModalOpen] = useState(false);
     const [isInventoryModalOpen, setIsInventoryModalOpen] = useState(false);
+    const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
+    const [selectedItemForRecipe, setSelectedItemForRecipe] = useState(null);
     const [alert, setAlert] = useState({ isOpen: false, type: 'info', title: '', message: '' });
     const [confirmDelete, setConfirmDelete] = useState({ isOpen: false, item: null });
 
@@ -97,6 +100,23 @@ const Inventory = () => {
         setEditingItem(null);
     };
 
+    // Handlers para modal de receta
+    const handleOpenRecipeModal = (item) => {
+        setSelectedItemForRecipe(item);
+        setIsRecipeModalOpen(true);
+    };
+
+    const handleCloseRecipeModal = () => {
+        setIsRecipeModalOpen(false);
+        setSelectedItemForRecipe(null);
+    };
+
+    // Categorías que requieren receta
+    const needsRecipe = (category) => {
+        const recipeCategories = ['MICHELADAS', 'SODAS', 'COCTELES', 'BEBIDAS PREPARADAS'];
+        return recipeCategories.includes(category?.toUpperCase());
+    };
+
     const handleDelete = (item) => {
         setConfirmDelete({ isOpen: true, item });
     };
@@ -145,7 +165,6 @@ const Inventory = () => {
                 <table className="inventory-table">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Nombre</th>
                             <th>Categoría</th>
                             <th>Precio</th>
@@ -159,7 +178,6 @@ const Inventory = () => {
                     <tbody>
                         {filteredInventory.map(item => (
                             <tr key={item.id}>
-                                <td>{item.id}</td>
                                 <td>{item.name}</td>
                                 <td>{item.categories}</td>
                                 <td>${item.price}</td>
@@ -168,6 +186,15 @@ const Inventory = () => {
                                 <td>{formatDate(item.create_date)}</td>
                                 <td>{formatDate(item.update_date)}</td>
                                 <td className="actions">
+                                    {needsRecipe(item.categories) && (
+                                        <button 
+                                            className="btn-recipe" 
+                                            onClick={() => handleOpenRecipeModal(item)}
+                                            title="Gestionar receta de ingredientes"
+                                        >
+                                            🍹 Receta
+                                        </button>
+                                    )}
                                     <button className="btn-edit" onClick={() => handleEdit(item)}>
                                         Editar
                                     </button>
@@ -187,7 +214,16 @@ const Inventory = () => {
                     onSuccess={handleProviderSuccess}
                 />
             )}
+{/* Modal de receta/ingredientes */}
+            {isRecipeModalOpen && selectedItemForRecipe && (
+                <RecipeModal
+                    item={selectedItemForRecipe}
+                    onClose={handleCloseRecipeModal}
+                    showAlert={showAlert}
+                />
+            )}
 
+            
             {isInventoryModalOpen && (
                 <InventoryForm
                     item={editingItem}

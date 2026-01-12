@@ -3,6 +3,7 @@ import './Dashboard.css';
 import logo from '../../assets/images/logo-micheludos.webp';
 import Users from '../Users/Users';
 import Inventory from '../Inventory/Inventory';
+import Products from '../Products/Products';
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState('mesas');
@@ -97,10 +98,7 @@ const Dashboard = () => {
           )}
 
           {activeSection === 'productos' && (
-            <div className="section-placeholder">
-              <h2>Productos</h2>
-              <p>Gestión de productos</p>
-            </div>
+            <Products />
           )}
 
           {activeSection === 'ventas' && (

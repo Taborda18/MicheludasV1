@@ -1,0 +1,232 @@
+/* Recipe Modal */
+.recipe-modal {
+    background: linear-gradient(145deg, #1a1a1a, #2d2d2d);
+    border-radius: 15px;
+    width: 90%;
+    max-width: 700px;
+    max-height: 85vh;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(45, 80, 22, 0.3);
+}
+
+.recipe-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    background: linear-gradient(135deg, #2d5016, #1a3009);
+    border-bottom: 2px solid #3b6b1f;
+}
+
+.recipe-modal-header h3 {
+    color: white;
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.recipe-modal-header .modal-close-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.recipe-modal-header .modal-close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+}
+
+.recipe-modal-body {
+    padding: 25px;
+    overflow-y: auto;
+    max-height: calc(85vh - 80px);
+}
+
+.current-ingredients {
+    margin-bottom: 25px;
+}
+
+.current-ingredients h4,
+.add-ingredient-form h4 {
+    color: #8bc34a;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    border-bottom: 1px solid rgba(139, 195, 74, 0.3);
+    padding-bottom: 8px;
+}
+
+.no-ingredients {
+    color: #888;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+}
+
+.ingredients-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.ingredients-table th,
+.ingredients-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ingredients-table th {
+    background: rgba(45, 80, 22, 0.4);
+    color: #8bc34a;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.ingredients-table td {
+    color: #e0e0e0;
+}
+
+.ingredients-table tbody tr:hover {
+    background: rgba(45, 80, 22, 0.2);
+}
+
+.low-stock {
+    color: #ff6b6b !important;
+    font-weight: bold;
+}
+
+.btn-remove {
+    background: linear-gradient(135deg, #c0392b, #e74c3c);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.btn-remove:hover {
+    transform: scale(1.05);
+    box-shadow: 0 3px 10px rgba(231, 76, 60, 0.4);
+}
+
+/* Formulario para agregar */
+.add-ingredient-form {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid rgba(139, 195, 74, 0.2);
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.form-row select,
+.form-row input {
+    padding: 12px 15px;
+    border: 1px solid rgba(139, 195, 74, 0.3);
+    border-radius: 8px;
+    background: rgba(30, 30, 30, 0.8);
+    color: white;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.form-row select:focus,
+.form-row input:focus {
+    outline: none;
+    border-color: #8bc34a;
+    box-shadow: 0 0 10px rgba(139, 195, 74, 0.3);
+}
+
+.form-row select:first-child {
+    flex: 2;
+    min-width: 200px;
+}
+
+.form-row input[type="number"] {
+    flex: 1;
+    min-width: 100px;
+}
+
+.form-row select:last-of-type {
+    flex: 1;
+    min-width: 100px;
+}
+
+.btn-add-ingredient {
+    background: linear-gradient(135deg, #2d5016, #3b6b1f);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-add-ingredient:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(45, 80, 22, 0.4);
+}
+
+.btn-add-ingredient:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Info section */
+.recipe-info {
+    background: rgba(139, 195, 74, 0.1);
+    border: 1px solid rgba(139, 195, 74, 0.3);
+    border-radius: 8px;
+    padding: 15px;
+    color: #b4d88a;
+    font-size: 0.9rem;
+}
+
+.recipe-info p {
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .recipe-modal {
+        width: 95%;
+        max-height: 90vh;
+    }
+
+    .form-row {
+        flex-direction: column;
+    }
+
+    .form-row select,
+    .form-row input,
+    .btn-add-ingredient {
+        width: 100%;
+    }
+
+    .ingredients-table th,
+    .ingredients-table td {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+    }
+}

@@ -242,6 +242,25 @@
   transform: scale(1.05);
 }
 
+/* Recipe Button */
+.btn-recipe {
+  background: linear-gradient(135deg, #8e44ad, #9b59b6);
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-recipe:hover {
+  background: linear-gradient(135deg, #9b59b6, #8e44ad);
+  transform: scale(1.05);
+  box-shadow: 0 3px 10px rgba(155, 89, 182, 0.4);
+}
+
 /* Confirm Delete Modal */
 .confirm-modal {
   position: relative;
