@@ -1,0 +1,287 @@
+/* Create Session Modal */
+.create-session-modal {
+    background: linear-gradient(145deg, #1a1a1a, #2d2d2d);
+    max-width: 450px;
+    width: 90%;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.create-session-modal .modal-title {
+    color: #00d9a6;
+    margin-bottom: 25px;
+    text-align: center;
+    font-size: 1.4rem;
+}
+
+.create-session-modal .form-group {
+    margin-bottom: 20px;
+}
+
+.create-session-modal label {
+    display: block;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.create-session-modal label .optional {
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 400;
+    font-size: 12px;
+}
+
+/* Autocomplete */
+.autocomplete-container {
+    position: relative;
+}
+
+.create-session-modal input,
+.create-session-modal select {
+    width: 100%;
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(0, 217, 166, 0.2);
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.create-session-modal input:focus,
+.create-session-modal select:focus {
+    outline: none;
+    border-color: #00d9a6;
+    box-shadow: 0 0 15px rgba(0, 217, 166, 0.2);
+}
+
+.create-session-modal select option {
+    background: #2d2d2d;
+    color: white;
+}
+
+/* Suggestions List */
+.suggestions-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #2d2d2d;
+    border: 2px solid rgba(0, 217, 166, 0.3);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 100;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.suggestion-item:hover {
+    background: rgba(0, 217, 166, 0.15);
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-icon {
+    font-size: 18px;
+}
+
+.suggestion-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.suggestion-text {
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.suggestion-tag {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 11px;
+}
+
+.suggestion-badge {
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.suggestion-badge.available {
+    background: rgba(0, 217, 166, 0.2);
+    color: #00d9a6;
+}
+
+/* New Table Indicator */
+.new-table-indicator {
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffc107;
+    font-size: 13px;
+}
+
+.new-table-indicator .new-icon {
+    font-size: 16px;
+}
+
+.new-table-indicator strong {
+    color: #ffca28;
+}
+
+/* Selected Table Info */
+.selected-table-info {
+    background: rgba(0, 217, 166, 0.1);
+    border: 1px solid rgba(0, 217, 166, 0.3);
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #00d9a6;
+    font-size: 13px;
+}
+
+.selected-table-info .check-icon {
+    font-size: 16px;
+    background: #00d9a6;
+    color: #1a1a1a;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.selected-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.selected-tag {
+    color: rgba(0, 217, 166, 0.7);
+    font-size: 11px;
+}
+
+.selected-table-info strong {
+    color: #00d9a6;
+}
+
+.create-session-modal .preview-name {
+    background: rgba(0, 217, 166, 0.1);
+    border: 1px solid rgba(0, 217, 166, 0.3);
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-bottom: 25px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+}
+
+.create-session-modal .preview-name strong {
+    color: #00d9a6;
+}
+
+.create-session-modal .modal-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+}
+
+.create-session-modal .btn-cancel {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.create-session-modal .btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.create-session-modal .btn-confirm {
+    background: linear-gradient(135deg, #00d9a6, #00b894);
+    border: none;
+    color: #1a1a2e;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.create-session-modal .btn-confirm:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 217, 166, 0.4);
+}
+
+.create-session-modal .btn-confirm:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Modal base styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.modal-close-x {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modal-close-x:hover {
+    color: #ff6b6b;
+    transform: rotate(90deg);
+}

@@ -1,0 +1,461 @@
+/* Orders Container */
+.orders-container {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+}
+
+/* Tabs */
+.orders-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 25px;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.tab-btn {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 20px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.tab-btn.active {
+    background: linear-gradient(135deg, #00d9a6, #00b894);
+    color: #1a1a2e;
+    box-shadow: 0 4px 15px rgba(0, 217, 166, 0.3);
+}
+
+/* Header */
+.orders-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding: 0 10px;
+}
+
+.btn-create {
+    background: transparent;
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 12px 25px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-create:hover {
+    border-color: #00d9a6;
+    color: #00d9a6;
+    background: rgba(0, 217, 166, 0.1);
+}
+
+.btn-arrange {
+    background: linear-gradient(135deg, #00d9a6, #00b894);
+    border: none;
+    color: #1a1a2e;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-arrange:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 217, 166, 0.4);
+}
+
+/* Tables Grid */
+.tables-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+    padding: 10px;
+}
+
+/* Table Card */
+.table-card {
+    background: #ffffff;
+    border-radius: 15px;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 3px solid transparent;
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.table-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.table-card.active {
+    border-color: #00d9a6;
+    background: linear-gradient(145deg, #ffffff, #f0fdf9);
+}
+
+/* Card Header */
+.card-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 5px;
+    height: 70px;
+    overflow: hidden;
+}
+
+.table-icon {
+    font-size: 38px;
+}
+
+.card-header img {
+    width: 170px;
+    height: 170px;
+    object-fit: contain;
+}
+
+.card-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.btn-icon {
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.btn-icon:hover {
+    transform: scale(1.1);
+}
+
+.btn-icon.edit:hover {
+    background: rgba(33, 150, 243, 0.2);
+}
+
+.btn-icon.close-table {
+    background: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+    font-weight: bold;
+}
+
+.btn-icon.close-table:hover {
+    background: rgba(244, 67, 54, 0.2);
+}
+
+/* Card Body */
+.card-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.table-name {
+    color: #333;
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    text-align: center;
+}
+
+.table-tag {
+    color: #888;
+    font-size: 10px;
+    margin-bottom: 4px;
+    text-align: center;
+}
+
+.status-label {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 10px;
+    width: fit-content;
+}
+
+.status-label.active {
+    background: rgba(0, 217, 166, 0.2);
+    color: #00b894;
+}
+
+.status-label.available {
+    background: rgba(158, 158, 158, 0.2);
+    color: #757575;
+}
+
+.table-info {
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.user-name {
+    display: block;
+    font-size: 11px;
+    color: #888;
+}
+
+.table-total {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: #00b894;
+    margin-top: 2px;
+}
+
+/* Empty State */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.empty-state p {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.empty-state .btn-primary {
+    background: linear-gradient(135deg, #00d9a6, #00b894);
+    color: #1a1a2e;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Loading */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(0, 217, 166, 0.2);
+    border-top-color: #00d9a6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Orders List (Pedidos tab) */
+.orders-list {
+    padding: 20px;
+}
+
+.coming-soon {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 16px;
+}
+
+/* Create Modal */
+.create-modal {
+    background: linear-gradient(145deg, #1a1a1a, #2d2d2d);
+    max-width: 400px;
+    padding: 30px;
+}
+
+.create-modal .modal-title {
+    color: #00d9a6;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.create-modal .form-group {
+    margin-bottom: 20px;
+}
+
+.create-modal label {
+    display: block;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.create-modal input,
+.create-modal select {
+    width: 100%;
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(0, 217, 166, 0.2);
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.create-modal input:focus,
+.create-modal select:focus {
+    outline: none;
+    border-color: #00d9a6;
+    box-shadow: 0 0 15px rgba(0, 217, 166, 0.2);
+}
+
+.create-modal select option {
+    background: #2d2d2d;
+    color: white;
+}
+
+.preview-name {
+    background: rgba(0, 217, 166, 0.1);
+    border: 1px solid rgba(0, 217, 166, 0.3);
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-bottom: 25px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+}
+
+.preview-name strong {
+    color: #00d9a6;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+}
+
+.btn-cancel {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-confirm {
+    background: linear-gradient(135deg, #00d9a6, #00b894);
+    border: none;
+    color: #1a1a2e;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 217, 166, 0.4);
+}
+
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    position: relative;
+    border-radius: 15px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modal-close-x {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modal-close-x:hover {
+    color: #ff6b6b;
+    transform: rotate(90deg);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tables-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 10px;
+    }
+
+    .orders-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .btn-create,
+    .btn-arrange {
+        width: 100%;
+    }
+
+    .orders-tabs {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .tab-btn {
+        flex: 1;
+        text-align: center;
+    }
+}

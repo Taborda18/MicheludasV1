@@ -4,6 +4,7 @@ import logo from '../../assets/images/logo-micheludos.webp';
 import Users from '../Users/Users';
 import Inventory from '../Inventory/Inventory';
 import Products from '../Products/Products';
+import Orders from '../Orders/Orders';
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState('mesas');
@@ -84,13 +85,7 @@ const Dashboard = () => {
 
         <div className="content-area">
           {activeSection === 'mesas' && (
-            <div className="mesas-section">
-              <h2>Gestión de Mesas</h2>
-              <div className="tables-grid">
-                {/* Aquí irá la gestión de mesas */}
-                <p>Aquí trabajaremos con las mesas del bar</p>
-              </div>
-            </div>
+            <Orders />
           )}
 
           {activeSection === 'inventario' && (
@@ -109,10 +104,7 @@ const Dashboard = () => {
           )}
 
           {activeSection === 'ordenes' && (
-            <div className="section-placeholder">
-              <h2>Órdenes</h2>
-              <p>Gestión de órdenes</p>
-            </div>
+            <Orders />
           )}
 
           {activeSection === 'reportes' && (

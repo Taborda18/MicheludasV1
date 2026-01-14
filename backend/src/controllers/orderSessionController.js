@@ -11,10 +11,20 @@ const orderSessionController = {
         }
     },
 
-    // Obtener solo sesiones activas
-    getActiveSessions: async (req, res) => {
+    // Obtener sesiones abiertas (para mostrar en dashboard)
+    getOpenSessions: async (req, res) => {
         try {
-            const sessions = await OrderSession.findActive();
+            const sessions = await OrderSession.findOpen();
+            res.json(sessions);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+
+    // Obtener mesas cerradas
+    getClosedSessions: async (req, res) => {
+        try {
+            const sessions = await OrderSession.findClosed();
             res.json(sessions);
         } catch (error) {
             res.status(500).json({ error: error.message });
