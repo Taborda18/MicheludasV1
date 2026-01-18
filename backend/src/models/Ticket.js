@@ -36,6 +36,24 @@ class Ticket {
         return result.rows;
     }
 
+    static async findBySessionWithDetails(session_id) {
+        const tickets = await this.findBySession(session_id);
+        
+        // Obtener detalles para cada ticket
+        for (let ticket of tickets) {
+            const details = await pool.query(
+                `SELECT td.*, p.name as product_name 
+                 FROM ticket_details td 
+                 LEFT JOIN products p ON td.product_id = p.id 
+                 WHERE td.ticket_id = $1`,
+                [ticket.id]
+            );
+            ticket.details = details.rows;
+        }
+        
+        return tickets;
+    }
+
     static async create(ticketData) {
         const { session_id, waiter_id, status = 'pending' } = ticketData;
         const result = await pool.query(

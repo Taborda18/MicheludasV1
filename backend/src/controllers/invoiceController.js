@@ -57,6 +57,28 @@ const invoiceController = {
         }
     },
 
+    // Crear factura y cerrar sesión
+    generateInvoice: async (req, res) => {
+        try {
+            const { session_id, cashier_id, total_amount, payment_method } = req.body;
+            
+            if (!session_id || !total_amount) {
+                return res.status(400).json({ message: 'session_id and total_amount are required' });
+            }
+
+            const invoice = await Invoice.createAndCloseSession({
+                session_id,
+                cashier_id,
+                total_amount,
+                payment_method: payment_method || 'cash'
+            });
+
+            res.status(201).json(invoice);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+
     // Obtener reportes por rango de fechas
     getSalesReport: async (req, res) => {
         try {

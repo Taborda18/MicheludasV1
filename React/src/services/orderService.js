@@ -37,13 +37,40 @@ export const orderService = {
         return response.data;
     },
 
+    getPendingTickets: async () => {
+        const response = await api.get('/tickets?status=pending');
+        return response.data;
+    },
+
+    getSessionsWithPendingTickets: async () => {
+        const response = await api.get('/sessions/with-pending-tickets');
+        return response.data;
+    },
+
     createTicket: async (ticketData) => {
         const response = await api.post('/tickets', ticketData);
+        return response.data;
+    },
+
+    updateTicketStatus: async (ticketId, status) => {
+        const response = await api.patch(`/tickets/${ticketId}/status`, { status });
         return response.data;
     },
 
     addTicketDetail: async (detailData) => {
         const response = await api.post('/ticket-details', detailData);
         return response.data;
+    },
+
+    // Ticket Details
+    updateTicketDetailQuantity: async (detailId, quantity) => {
+        const response = await api.patch(`/ticket-details/${detailId}/quantity`, { quantity });
+        return response.data;
+    },
+
+    deleteTicketDetail: async (detailId) => {
+        const response = await api.delete(`/ticket-details/${detailId}`);
+        return response.data;
     }
 };
+

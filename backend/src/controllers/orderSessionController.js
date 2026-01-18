@@ -21,6 +21,16 @@ const orderSessionController = {
         }
     },
 
+    // Obtener sesiones con tickets pendientes
+    getSessionsWithPendingTickets: async (req, res) => {
+        try {
+            const sessions = await OrderSession.getSessionsWithPendingTickets();
+            res.json(sessions);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+
     // Obtener mesas cerradas
     getClosedSessions: async (req, res) => {
         try {

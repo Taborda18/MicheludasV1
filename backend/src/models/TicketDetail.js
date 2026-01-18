@@ -35,6 +35,14 @@ class TicketDetail {
         return result.rows[0];
     }
 
+    static async updateQuantity(id, quantity) {
+        const result = await pool.query(
+            'UPDATE ticket_details SET quantity = $1 WHERE id = $2 RETURNING *',
+            [quantity, id]
+        );
+        return result.rows[0];
+    }
+
     static async delete(id) {
         await pool.query('DELETE FROM ticket_details WHERE id = $1', [id]);
         return { message: 'Ticket detail deleted successfully' };

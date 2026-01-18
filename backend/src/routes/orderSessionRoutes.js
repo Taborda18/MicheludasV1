@@ -6,6 +6,7 @@ const orderSessionController = require('../controllers/orderSessionController');
 // IMPORTANTE: Rutas específicas ANTES de rutas con parámetros
 router.get('/open', orderSessionController.getOpenSessions);
 router.get('/closed', orderSessionController.getClosedSessions);
+router.get('/with-pending-tickets', orderSessionController.getSessionsWithPendingTickets);
 router.get('/table/:tableIdentifier', orderSessionController.getSessionByTable);
 router.get('/', orderSessionController.getAllSessions);
 router.get('/:id', orderSessionController.getSessionById);

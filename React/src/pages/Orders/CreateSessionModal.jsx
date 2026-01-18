@@ -93,11 +93,11 @@ const CreateSessionModal = ({ onClose, onSuccess, showAlert }) => {
             setSaving(true);
             
             if (selectedTable) {
-                // Mesa existente - actualizar estado y etiqueta
-                await api.put(`/sessions/${selectedTable.id}`, { 
+                // Mesa existente (cerrada) - crear NUEVA sesión para esta mesa
+                await api.post('/sessions', {
                     table_identifier: selectedTable.table_identifier,
                     tag: newTableData.tag || null,
-                    status: 'Open' 
+                    status: 'Open'
                 });
             } else if (isNewTable) {
                 // Mesa nueva - crear desde cero
@@ -107,16 +107,16 @@ const CreateSessionModal = ({ onClose, onSuccess, showAlert }) => {
                     status: 'Open'
                 });
             } else {
-                // Buscar mesa existente cerrada y abrirla con etiqueta
+                // Buscar mesa existente cerrada y abrirla creando NUEVA sesión
                 const tableToUse = tables.find(t => 
                     t.table_identifier.toLowerCase() === searchText.toLowerCase() &&
                     t.status === 'Closed'
                 );
                 if (tableToUse) {
-                    await api.put(`/sessions/${tableToUse.id}`, { 
+                    await api.post('/sessions', {
                         table_identifier: tableToUse.table_identifier,
                         tag: newTableData.tag || null,
-                        status: 'Open' 
+                        status: 'Open'
                     });
                 }
             }

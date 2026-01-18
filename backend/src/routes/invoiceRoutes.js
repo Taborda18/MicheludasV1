@@ -8,6 +8,7 @@ router.get('/report', invoiceController.getSalesReport);
 router.get('/:id', invoiceController.getInvoiceById);
 router.get('/session/:sessionId', invoiceController.getInvoiceBySession);
 router.post('/', invoiceController.createInvoice);
+router.post('/generate/invoice', invoiceController.generateInvoice);
 router.delete('/:id', invoiceController.deleteInvoice);
 
 module.exports = router;

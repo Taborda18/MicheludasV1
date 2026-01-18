@@ -1,4 +1,6 @@
 const { pool } = require('../config/database');
+const Ticket = require('./Ticket');
+const Inventory = require('./Inventory');
 
 class Invoice {
     static async findAll() {
@@ -44,6 +46,74 @@ class Invoice {
     static async delete(id) {
         await pool.query('DELETE FROM invoices WHERE id = $1', [id]);
         return { message: 'Invoice deleted successfully' };
+    }
+
+    // Descontar inventario para todos los tickets aprobados de una sesión
+    static async deductInventoryForSession(client, session_id) {
+        try {
+            // Obtener todos los detalles de tickets aprobados en la sesión
+            const detailsQuery = `
+                SELECT td.product_id, td.quantity
+                FROM tickets t
+                INNER JOIN ticket_details td ON t.id = td.ticket_id
+                WHERE t.session_id = $1 AND t.status = 'Approved'
+            `;
+
+            const { rows: details } = await client.query(detailsQuery, [session_id]);
+
+            // Descontar cada producto del inventario usando el id de inventory (coincide con product_id)
+            for (const detail of details) {
+                if (detail.product_id && detail.quantity > 0) {
+                    await client.query(
+                        'UPDATE inventory SET stock = stock - $1, update_date = NOW() WHERE id = $2',
+                        [detail.quantity, detail.product_id]
+                    );
+                }
+            }
+
+            return { success: true, message: 'Inventory deducted successfully' };
+        } catch (error) {
+            throw new Error(`Error deducting inventory: ${error.message}`);
+        }
+    }
+
+    static async createAndCloseSession(invoiceData) {
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+
+            const { session_id, cashier_id, total_amount, payment_method } = invoiceData;
+
+            // Paso 1: Descontar inventario para todos los tickets aprobados
+            await this.deductInventoryForSession(client, session_id);
+
+            // Paso 2: Crear factura
+            const invoiceInsert = await client.query(
+                'INSERT INTO invoices (session_id, cashier_id, total_amount, payment_method, created_at) VALUES ($1, $2, $3, $4, NOW()) ON CONFLICT (session_id) DO NOTHING RETURNING *',
+                [session_id, cashier_id, total_amount, payment_method]
+            );
+
+            // Si ya existe, recuperar para retornar al final
+            let existingInvoice = null;
+            if (invoiceInsert.rowCount === 0) {
+                const existing = await client.query('SELECT * FROM invoices WHERE session_id = $1', [session_id]);
+                existingInvoice = existing.rows[0];
+            }
+
+            // Paso 3: Cerrar sesión y limpiar tag
+            await client.query(
+                "UPDATE order_sessions SET status = 'Closed', tag = NULL WHERE id = $1",
+                [session_id]
+            );
+
+            await client.query('COMMIT');
+            return invoiceInsert.rows[0] || existingInvoice;
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
     }
 
     static async getTotalsByDateRange(startDate, endDate) {

@@ -65,6 +65,37 @@ const ticketDetailController = {
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
+    },
+
+    // Actualizar solo la cantidad
+    updateQuantity: async (req, res) => {
+        try {
+            const { quantity } = req.body;
+            
+            if (quantity === undefined || quantity === null) {
+                return res.status(400).json({ error: 'Quantity is required' });
+            }
+
+            if (quantity < 0) {
+                return res.status(400).json({ error: 'Quantity cannot be negative' });
+            }
+
+            const updatedDetail = await TicketDetail.updateQuantity(req.params.id, quantity);
+            
+            if (!updatedDetail) {
+                return res.status(404).json({ message: 'Detail not found' });
+            }
+
+            // Calcular subtotal
+            const subtotal = updatedDetail.quantity * updatedDetail.unit_price_at_sale;
+            
+            res.json({
+                ...updatedDetail,
+                subtotal
+            });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
     }
 };
 

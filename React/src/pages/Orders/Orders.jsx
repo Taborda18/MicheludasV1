@@ -2,13 +2,21 @@ import { useState, useEffect } from 'react';
 import api from '../../services/api';
 import Modal from '../../components/common/Modal';
 import CreateSessionModal from './CreateSessionModal';
+import CreateOrderModal from './CreateOrderModal';
+import OrderDetailsModal from './OrderDetailsModal';
 import './Orders.css';
 import MesaAltaIcon from '../../assets/images/mesa-alta.webp';
 
 const Orders = () => {
     const [sessions, setSessions] = useState([]);
+    const [sessionsWithPending, setSessionsWithPending] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('zonas'); // 'zonas' o 'pedidos'
+
+    // Modal para crear pedido
+    const [selectedSession, setSelectedSession] = useState(null);
+    const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
     // Modal para crear nueva sesión
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -18,6 +26,7 @@ const Orders = () => {
 
     useEffect(() => {
         fetchSessions();
+        fetchSessionsWithPending();
     }, []);
 
     const fetchSessions = async () => {
@@ -30,6 +39,15 @@ const Orders = () => {
             showAlert('error', 'Error', 'No se pudieron cargar las sesiones');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchSessionsWithPending = async () => {
+        try {
+            const response = await api.get('/sessions/with-pending-tickets');
+            setSessionsWithPending(response.data);
+        } catch (error) {
+            console.error('Error al cargar sesiones con pendientes:', error);
         }
     };
 
@@ -55,9 +73,26 @@ const Orders = () => {
     };
 
     const handleSelectTable = (session) => {
-        // Aquí se navegará a los detalles del pedido de la mesa
-        console.log('Mesa seleccionada:', session);
-        // TODO: Navegar a la vista de pedido de la mesa
+        setSelectedSession(session);
+        if (activeTab === 'zonas') {
+            setIsOrderModalOpen(true);
+        } else {
+            setIsDetailsModalOpen(true);
+        }
+    };
+
+    const handleOrderSuccess = () => {
+        setIsOrderModalOpen(false);
+        setSelectedSession(null);
+        fetchSessions();
+        fetchSessionsWithPending(); // Actualizar pedidos pendientes
+    };
+
+    const handleDetailsSuccess = () => {
+        setIsDetailsModalOpen(false);
+        setSelectedSession(null);
+        fetchSessions();
+        fetchSessionsWithPending(); // Actualizar pedidos pendientes
     };
 
     const getTagIcon = (tableIdentifier) => {
@@ -74,6 +109,9 @@ const Orders = () => {
             minimumFractionDigits: 0
         }).format(price || 0);
     };
+
+    // Calcular el total de pedidos pendientes
+    const totalPendingTickets = sessionsWithPending.reduce((sum, session) => sum + session.pending_tickets_count, 0);
 
     if (loading) {
         return (
@@ -100,7 +138,7 @@ const Orders = () => {
                     className={`tab-btn ${activeTab === 'pedidos' ? 'active' : ''}`}
                     onClick={() => setActiveTab('pedidos')}
                 >
-                    📋 Pedidos
+                    📋 Pedidos {totalPendingTickets > 0 && <span className="badge-count">{totalPendingTickets}</span>}
                 </button>
             </div>
 
@@ -148,8 +186,38 @@ const Orders = () => {
 
             {/* Vista de pedidos */}
             {activeTab === 'pedidos' && (
-                <div className="orders-list">
-                    <p className="coming-soon">Vista de pedidos en desarrollo...</p>
+                <div className="tables-grid">
+                    {sessionsWithPending.length === 0 ? (
+                        <div className="empty-state">
+                            <p>No hay mesas abiertas</p>
+                        </div>
+                    ) : (
+                        sessionsWithPending.map((session) => (
+                            <div
+                                key={session.id}
+                                className={`table-card ${session.pending_tickets_count > 0 ? 'pending' : 'approved'}`}
+                                onClick={() => handleSelectTable(session)}
+                            >
+                                <div className="card-header">
+                                    <span className="table-icon">{getTagIcon(session.table_identifier)}</span>
+                                </div>
+                                <div className="card-body">
+                                    <h3 className="table-name">{session.table_identifier}</h3>
+                                    {session.tag && (
+                                        <span className="table-tag">{session.tag}</span>
+                                    )}
+                                    <span className={`status-label ${session.pending_tickets_count > 0 ? 'pending' : 'approved'}`}>
+                                        {session.pending_tickets_count > 0 
+                                            ? `${session.pending_tickets_count} ${session.pending_tickets_count === 1 ? 'Pedido' : 'Pedidos'}` 
+                                            : 'Completada'}
+                                    </span>
+                                    <div className="table-info">
+                                        <span className="table-total">{formatPrice(session.total_amount)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
             )}
 
@@ -158,6 +226,32 @@ const Orders = () => {
                 <CreateSessionModal
                     onClose={() => setIsCreateModalOpen(false)}
                     onSuccess={handleCreateSuccess}
+                    showAlert={showAlert}
+                />
+            )}
+
+            {/* Modal para crear pedido */}
+            {isOrderModalOpen && selectedSession && (
+                <CreateOrderModal
+                    session={selectedSession}
+                    onClose={() => {
+                        setIsOrderModalOpen(false);
+                        setSelectedSession(null);
+                    }}
+                    onSuccess={handleOrderSuccess}
+                    showAlert={showAlert}
+                />
+            )}
+
+            {/* Modal para ver detalles de pedidos pendientes */}
+            {isDetailsModalOpen && selectedSession && (
+                <OrderDetailsModal
+                    session={selectedSession}
+                    onClose={() => {
+                        setIsDetailsModalOpen(false);
+                        setSelectedSession(null);
+                    }}
+                    onSuccess={handleDetailsSuccess}
                     showAlert={showAlert}
                 />
             )}

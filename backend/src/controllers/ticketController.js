@@ -1,5 +1,6 @@
 const Ticket = require('../models/Ticket');
 const TicketDetail = require('../models/TicketDetail');
+const Inventory = require('../models/Inventory');
 
 const ticketController = {
     // Obtener todos los tickets
@@ -41,7 +42,7 @@ const ticketController = {
     // Obtener tickets por sesión
     getTicketsBySession: async (req, res) => {
         try {
-            const tickets = await Ticket.findBySession(req.params.sessionId);
+            const tickets = await Ticket.findBySessionWithDetails(req.params.sessionId);
             res.json(tickets);
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -62,7 +63,11 @@ const ticketController = {
     updateTicketStatus: async (req, res) => {
         try {
             const { status } = req.body;
-            const updatedTicket = await Ticket.updateStatus(req.params.id, status);
+            const ticketId = req.params.id;
+
+            // Solo actualizar estado, sin descontar inventario
+            // El inventario se descuenta cuando se genera la factura
+            const updatedTicket = await Ticket.updateStatus(ticketId, status);
             if (!updatedTicket) {
                 return res.status(404).json({ message: 'Ticket not found' });
             }
