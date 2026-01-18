@@ -1,0 +1,112 @@
+.cash-close-modal {
+    width: 480px;
+}
+
+.modal-close-x {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.modal-close-x:hover {
+    opacity: 1;
+}
+
+.loading-session {
+    padding: 30px;
+    text-align: center;
+    color: #00d9a6;
+}
+
+.session-summary {
+    background: rgba(0, 217, 166, 0.08);
+    border: 1px solid rgba(0, 217, 166, 0.2);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 18px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 14px;
+}
+
+.summary-row.highlight {
+    border-top: 1px solid rgba(0, 217, 166, 0.3);
+    margin-top: 8px;
+    padding-top: 12px;
+    font-size: 16px;
+    color: #00d9a6;
+}
+
+.summary-row span {
+    color: #cfd6d3;
+}
+
+.summary-row strong {
+    color: #fff;
+    font-weight: 700;
+}
+
+.difference-box {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.difference-box.balanced {
+    background: rgba(0, 217, 166, 0.1);
+    border: 1px solid rgba(0, 217, 166, 0.3);
+}
+
+.difference-box.surplus {
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.4);
+}
+
+.difference-box.shortage {
+    background: rgba(255, 99, 99, 0.1);
+    border: 1px solid rgba(255, 99, 99, 0.4);
+}
+
+.difference-label {
+    font-size: 13px;
+    margin-bottom: 4px;
+    opacity: 0.9;
+}
+
+.difference-amount {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.balanced .difference-label {
+    color: #00d9a6;
+}
+
+.surplus .difference-label,
+.surplus .difference-amount {
+    color: #ffc107;
+}
+
+.shortage .difference-label,
+.shortage .difference-amount {
+    color: #ff6363;
+}

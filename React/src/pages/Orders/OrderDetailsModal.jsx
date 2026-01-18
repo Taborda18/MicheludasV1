@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { orderService } from '../../services/orderService';
 import { invoiceService } from '../../services/invoiceService';
+import { cashSessionService } from '../../services/cashSessionService';
 import { AuthContext } from '../../context/AuthContext';
 import TableDetailsModal from './TableDetailsModal';
 import './OrderDetailsModal.css';
@@ -73,13 +74,27 @@ const OrderDetailsModal = ({ session, onClose, onSuccess, showAlert }) => {
                 setGenerating(false);
                 return;
             }
+
+            // Obtener sesión de caja abierta del usuario (solo para CAJA y MESERO)
+            let cashSessionId = null;
+            if (user.role_id === 2 || user.role_id === 3) {
+                try {
+                    const openSessions = await cashSessionService.getOpenByUser(user.id);
+                    if (openSessions && openSessions.length > 0) {
+                        cashSessionId = openSessions[0].id;
+                    }
+                } catch (error) {
+                    console.error('Error al obtener sesión de caja:', error);
+                }
+            }
             
             // Crear factura y cerrar mesa
             await invoiceService.generateInvoice({
                 session_id: session.id,
                 total_amount: totalGeneral,
                 payment_method: paymentMethod,
-                cashier_id: user.id
+                cashier_id: user.id,
+                cash_session_id: cashSessionId
             });
 
             showAlert('success', 'Factura Generada', 'Venta cerrada y mesa lista para nuevo cliente');

@@ -35,10 +35,10 @@ class Invoice {
     }
 
     static async create(invoiceData) {
-        const { session_id, cashier_id, total_amount, payment_method } = invoiceData;
+        const { session_id, cashier_id, total_amount, payment_method, cash_session_id = null } = invoiceData;
         const result = await pool.query(
-            'INSERT INTO invoices (session_id, cashier_id, total_amount, payment_method, created_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
-            [session_id, cashier_id, total_amount, payment_method]
+            'INSERT INTO invoices (session_id, cashier_id, total_amount, payment_method, cash_session_id, created_at) VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING *',
+            [session_id, cashier_id, total_amount, payment_method, cash_session_id]
         );
         return result.rows[0];
     }
@@ -82,15 +82,15 @@ class Invoice {
         try {
             await client.query('BEGIN');
 
-            const { session_id, cashier_id, total_amount, payment_method } = invoiceData;
+            const { session_id, cashier_id, total_amount, payment_method, cash_session_id = null } = invoiceData;
 
             // Paso 1: Descontar inventario para todos los tickets aprobados
             await this.deductInventoryForSession(client, session_id);
 
             // Paso 2: Crear factura
             const invoiceInsert = await client.query(
-                'INSERT INTO invoices (session_id, cashier_id, total_amount, payment_method, created_at) VALUES ($1, $2, $3, $4, NOW()) ON CONFLICT (session_id) DO NOTHING RETURNING *',
-                [session_id, cashier_id, total_amount, payment_method]
+                'INSERT INTO invoices (session_id, cashier_id, total_amount, payment_method, cash_session_id, created_at) VALUES ($1, $2, $3, $4, $5, NOW()) ON CONFLICT (session_id) DO NOTHING RETURNING *',
+                [session_id, cashier_id, total_amount, payment_method, cash_session_id]
             );
 
             // Si ya existe, recuperar para retornar al final

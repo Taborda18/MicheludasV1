@@ -14,6 +14,7 @@ const invoiceRoutes = require('./routes/invoiceRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const supplierRoutes = require('./routes/supplierRoutes');
 const productIngredientRoutes = require('./routes/productIngredientRoutes');
+const cashSessionRoutes = require('./routes/cashSessionRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -34,6 +35,7 @@ app.use('/api/invoices', invoiceRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/suppliers', supplierRoutes);
 app.use('/api/product-ingredients', productIngredientRoutes);
+app.use('/api/cash-sessions', cashSessionRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) => {
@@ -49,7 +51,8 @@ app.get('/', (req, res) => {
             invoices: '/api/invoices',
             inventory: '/api/inventory',
             suppliers: '/api/suppliers',
-            productIngredients: '/api/product-ingredients'
+            productIngredients: '/api/product-ingredients',
+            cashSessions: '/api/cash-sessions'
         }
     });
 });

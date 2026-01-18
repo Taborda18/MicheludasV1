@@ -40,7 +40,14 @@ const invoiceController = {
     // Crear nueva factura
     createInvoice: async (req, res) => {
         try {
-            const newInvoice = await Invoice.create(req.body);
+            const { session_id, cashier_id, total_amount, payment_method, cash_session_id } = req.body;
+            const newInvoice = await Invoice.create({
+                session_id,
+                cashier_id,
+                total_amount,
+                payment_method,
+                cash_session_id
+            });
             res.status(201).json(newInvoice);
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -60,7 +67,7 @@ const invoiceController = {
     // Crear factura y cerrar sesión
     generateInvoice: async (req, res) => {
         try {
-            const { session_id, cashier_id, total_amount, payment_method } = req.body;
+            const { session_id, cashier_id, total_amount, payment_method, cash_session_id } = req.body;
             
             if (!session_id || !total_amount) {
                 return res.status(400).json({ message: 'session_id and total_amount are required' });
@@ -70,7 +77,8 @@ const invoiceController = {
                 session_id,
                 cashier_id,
                 total_amount,
-                payment_method: payment_method || 'cash'
+                payment_method: payment_method || 'cash',
+                cash_session_id
             });
 
             res.status(201).json(invoice);

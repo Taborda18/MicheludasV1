@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../../services/authService';
+import { AuthContext } from '../../context/AuthContext';
 import Modal from '../../components/common/Modal';
 import logo from '../../assets/images/logo-micheludos.webp';
 import './Login.css';
 
 function Login() {
     const navigate = useNavigate();
+    const { login } = useContext(AuthContext);
     const [formData, setFormData] = useState({
         username: '',
         password: '',
@@ -51,7 +52,7 @@ function Login() {
         setLoading(true);
 
         try {
-            const response = await authService.login(formData.username, formData.password);
+            const response = await login(formData.username, formData.password);
             showModal(
                 'success',
                 '¡Login Exitoso!',
