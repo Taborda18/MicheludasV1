@@ -1,4 +1,5 @@
 const Invoice = require('../models/Invoice');
+const { getIO } = require('../utils/socket');
 
 const invoiceController = {
     // Obtener todas las facturas
@@ -48,6 +49,7 @@ const invoiceController = {
                 payment_method,
                 cash_session_id
             });
+            try { getIO().emit('invoice:created', { session_id: newInvoice.session_id, invoice_id: newInvoice.id }); getIO().emit('orderSession:changed', { action: 'updated' }); } catch {}
             res.status(201).json(newInvoice);
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -80,7 +82,10 @@ const invoiceController = {
                 payment_method: payment_method || 'cash',
                 cash_session_id
             });
-
+            try { 
+                getIO().emit('invoice:created', { session_id, invoice_id: invoice?.id });
+                getIO().emit('orderSession:changed', { action: 'status', session_id, status: 'Closed' });
+            } catch {}
             res.status(201).json(invoice);
         } catch (error) {
             res.status(500).json({ error: error.message });

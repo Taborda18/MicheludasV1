@@ -9,21 +9,38 @@ import CashSessionOpenModal from '../../components/cash/CashSessionOpenModal';
 import CashSessionCloseModal from '../../components/cash/CashSessionCloseModal';
 import { AuthContext } from '../../context/AuthContext';
 import { cashSessionService } from '../../services/cashSessionService';
+import socket from '../../services/socket';
 
 const Dashboard = () => {
   const { user, loading } = useContext(AuthContext);
   const roleId = user?.role_id !== undefined ? Number(user.role_id) : null;
   const [activeSection, setActiveSection] = useState('mesas');
-  // Iniciar colapsado en mobile, expandido en desktop
   const [isCollapsed, setIsCollapsed] = useState(window.innerWidth <= 768);
   const [showCashModal, setShowCashModal] = useState(null); // null = checking, true = show, false = hide
   const [cashSessionChecked, setCashSessionChecked] = useState(false);
   const [showCloseModal, setShowCloseModal] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState(null);
 
+  // Roles: ADMIN=1, CAJA=2, MESERO=3
+  const ROLES = { ADMIN: 1, CAJA: 2, MESERO: 3 };
+
+  // Permisos por sección
+  const PERMISSIONS = {
+    mesas: [ROLES.ADMIN, ROLES.CAJA, ROLES.MESERO],
+    productos: [ROLES.ADMIN, ROLES.CAJA],
+    reportes: [ROLES.ADMIN],
+    inventario: [ROLES.ADMIN, ROLES.CAJA],
+    administrador_de_usuarios: [ROLES.ADMIN],
+  };
+
+  // Verificar si el rol actual tiene acceso a una sección
+  const isAllowed = (sectionId) => {
+    return !PERMISSIONS[sectionId] || (roleId && PERMISSIONS[sectionId].includes(roleId));
+  };
+
   // Solo CAJA (role_id=2) y MESERO (role_id=3) necesitan sesión de caja
   // ADMIN (role_id=1) NO necesita
-  const needsCashSession = roleId === 2 || roleId === 3;
+  const needsCashSession = roleId === ROLES.CAJA || roleId === ROLES.MESERO;
 
   useEffect(() => {
     const checkCashSession = async () => {
@@ -44,8 +61,8 @@ const Dashboard = () => {
       setCashSessionChecked(false);
       
       try {
-        const openSessions = await cashSessionService.getOpenByUser(user.id);
-        
+        const openSessions = await cashSessionService.getOpen();
+
         if (!openSessions || openSessions.length === 0) {
           // No mostrar modal automáticamente, solo marcar que no hay sesión
           setShowCashModal(false);
@@ -65,6 +82,35 @@ const Dashboard = () => {
     checkCashSession();
   }, [user?.id, needsCashSession, loading]);
 
+  // Polling liviano para reflejar cambios de sesión de caja entre usuarios
+  useEffect(() => {
+    if (!needsCashSession || loading) return;
+    let intervalId = null;
+    const poll = async () => {
+      try {
+        const openSessions = await cashSessionService.getOpen();
+        const latestId = (openSessions && openSessions.length > 0) ? openSessions[0].id : null;
+        setCurrentSessionId(prev => (prev !== latestId ? latestId : prev));
+      } catch (err) {
+        // No romper UI por errores de red
+      }
+    };
+    // Iniciar polling cada 15s
+    intervalId = setInterval(poll, 15000);
+    // Hacer un ping inmediato al montar
+    poll();
+    // Suscribir evento socket para cambios inmediatos
+    const handleCashChanged = async () => {
+      try {
+        const openSessions = await cashSessionService.getOpen();
+        const latestId = (openSessions && openSessions.length > 0) ? openSessions[0].id : null;
+        setCurrentSessionId(latestId);
+      } catch {}
+    };
+    socket.on('cashSession:changed', handleCashChanged);
+    return () => intervalId && clearInterval(intervalId);
+  }, [needsCashSession, loading]);
+
   useEffect(() => {
     const handleResize = () => {
       // Auto colapsar en mobile, auto expandir en desktop
@@ -77,6 +123,7 @@ const Dashboard = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Definir todos los items del menú
   const menuItems = [
     { id: 'mesas', label: 'Mesas' },
     { id: 'productos', label: 'Productos' },
@@ -84,6 +131,16 @@ const Dashboard = () => {
     { id: 'inventario', label: 'Inventario' },
     { id: 'administrador_de_usuarios', label: 'Admin de usuarios' },
   ];
+
+  // Filtrar menú según rol
+  const allowedMenuItems = menuItems.filter((item) => isAllowed(item.id));
+
+  // Si el rol cambia y la sección activa no está permitida, cambiar a una permitida
+  useEffect(() => {
+    if (roleId && !isAllowed(activeSection) && allowedMenuItems.length > 0) {
+      setActiveSection(allowedMenuItems[0].id);
+    }
+  }, [roleId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleLogout = () => {
     // Lógica de logout
@@ -140,7 +197,7 @@ const Dashboard = () => {
         </div>
 
         <nav className="menu">
-          {menuItems.map((item) => (
+          {allowedMenuItems.map((item) => (
             <button
               key={item.id}
               className={`menu-item ${activeSection === item.id ? 'active' : ''}`}
@@ -177,50 +234,63 @@ const Dashboard = () => {
         </header>
 
         <div className="content-area">
-          {activeSection === 'mesas' && (() => {
-            // Si no hay usuario aún, mostrar verificación
-            if (!user) {
-              return (
-                <div className="section-locked">
-                  <div className="locked-content">
-                    <div className="lock-icon">⏳</div>
-                    <h2>Verificando Sesión...</h2>
-                    <p>Espera un momento mientras verificamos tu sesión de caja</p>
-                  </div>
-                </div>
-              );
-            }
-            
-            // Mostrar loading mientras carga el usuario o verifica la sesión
-            if (loading || (needsCashSession && !cashSessionChecked)) {
-              return (
-                <div className="section-locked">
-                  <div className="locked-content">
-                    <div className="lock-icon">⏳</div>
-                    <h2>Verificando Sesión...</h2>
-                    <p>Espera un momento mientras verificamos tu sesión de caja</p>
-                  </div>
-                </div>
-              );
-            }
-            
-            if (needsCashSession && !currentSessionId) {
-              return (
-                <div className="section-locked">
-                  <div className="locked-content">
-                    <div className="lock-icon">🔒</div>
-                    <h2>Sección Bloqueada</h2>
-                    <p>Debes abrir tu sesión de caja para acceder a las mesas</p>
-                    <button 
-                      className="btn-open-cash" 
-                      onClick={() => setShowCashModal(true)}
-                    >
-                      🔓 Abrir Sesión de Caja
-                    </button>
-                  </div>
-                </div>
-              );
-            }
+          {/* Bloqueo por rol si intenta acceder a una sección no permitida */}
+          {!isAllowed(activeSection) && (
+            <div className="section-locked">
+              <div className="locked-content">
+                <div className="lock-icon">🔒</div>
+                <h2>Sección Bloqueada</h2>
+                <p>No tienes permisos para acceder a esta sección</p>
+              </div>
+            </div>
+          )}
+
+          {isAllowed(activeSection) && (
+            <>
+              {activeSection === 'mesas' && (() => {
+                // Si no hay usuario aún, mostrar verificación
+                if (!user) {
+                  return (
+                    <div className="section-locked">
+                      <div className="locked-content">
+                        <div className="lock-icon">⏳</div>
+                        <h2>Verificando Sesión...</h2>
+                        <p>Espera un momento mientras verificamos tu sesión de caja</p>
+                      </div>
+                    </div>
+                  );
+                }
+                
+                // Mostrar loading mientras carga el usuario o verifica la sesión
+                if (loading || (needsCashSession && !cashSessionChecked)) {
+                  return (
+                    <div className="section-locked">
+                      <div className="locked-content">
+                        <div className="lock-icon">⏳</div>
+                        <h2>Verificando Sesión...</h2>
+                        <p>Espera un momento mientras verificamos tu sesión de caja</p>
+                      </div>
+                    </div>
+                  );
+                }
+                
+                if (needsCashSession && !currentSessionId) {
+                  return (
+                    <div className="section-locked">
+                      <div className="locked-content">
+                        <div className="lock-icon">🔒</div>
+                        <h2>Sección Bloqueada</h2>
+                        <p>Debes abrir la sesión de caja para acceder a las mesas</p>
+                        <button 
+                          className="btn-open-cash" 
+                          onClick={() => setShowCashModal(true)}
+                        >
+                          🔓 Abrir Sesión de Caja
+                        </button>
+                      </div>
+                    </div>
+                  );
+                }
             
             return <Orders />;
           })()}
@@ -253,6 +323,8 @@ const Dashboard = () => {
 
           {activeSection === 'administrador_de_usuarios' && (
             <Users />
+          )}
+            </>
           )}
         </div>
       </main>

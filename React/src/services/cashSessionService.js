@@ -6,6 +6,11 @@ export const cashSessionService = {
         return response.data;
     },
 
+    async getOpen() {
+        const response = await api.get('/cash-sessions/open');
+        return response.data;
+    },
+
     async getOpenByUser(userId) {
         const response = await api.get(`/cash-sessions/open/${userId}`);
         return response.data;

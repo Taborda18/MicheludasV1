@@ -5,6 +5,9 @@ const cashSessionController = require('../controllers/cashSessionController');
 // Obtener todas las sesiones de caja
 router.get('/', cashSessionController.getAll);
 
+// Obtener sesiones abiertas de forma global
+router.get('/open', cashSessionController.getOpenGlobal);
+
 // Obtener sesiones abiertas por usuario
 router.get('/open/:userId', cashSessionController.getOpenByUser);
 

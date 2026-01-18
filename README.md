@@ -6,10 +6,11 @@ Sistema completo de gestión para bares y restaurantes, desarrollado con tecnolo
 
 Micheludas es una aplicación full-stack diseñada para optimizar la operación de bares y restaurantes. Permite:
 
-- ✅ Gestión de mesas y órdenes en tiempo real
+- ✅ **Gestión de mesas y órdenes con sincronización en tiempo real** (Socket.IO)
 - ✅ Control de inventario y productos
 - ✅ Sistema de autenticación seguro con JWT
-- ✅ Gestión de usuarios y roles
+- ✅ **Control de acceso basado en roles** (ADMIN, CAJA, MESERO)
+- ✅ **Sesiones de caja globales** con apertura/cierre sincronizado
 - ✅ Registro de ventas y tickets
 - ✅ Reportes y estadísticas
 - ✅ Interfaz moderna y responsiva
@@ -30,15 +31,18 @@ MICHELUDAS/PROYECTO/
 │   ├── database/                  # Scripts SQL
 │   ├── package.json
 │   └── README.md
-├── React/mi-app-react/            # Frontend con React y Vite
+├── React/                         # Frontend con React y Vite
 │   ├── src/
 │   │   ├── assets/               # Imágenes y recursos
 │   │   ├── components/           # Componentes reutilizables
-│   │   ├── context/              # Context API
+│   │   │   ├── cash/             # Modales de sesión de caja
+│   │   │   ├── common/           # Componentes compartidos
+│   │   │   └── layout/           # Layouts generales
+│   │   ├── context/              # Context API (AuthContext)
 │   │   ├── hooks/                # Custom hooks
 │   │   ├── pages/                # Páginas de la app
 │   │   ├── routes/               # Configuración de rutas
-│   │   ├── services/             # Servicios API
+│   │   ├── services/             # Servicios API + Socket.IO
 │   │   ├── utils/                # Utilidades
 │   │   ├── App.jsx
 │   │   └── main.jsx
@@ -54,6 +58,7 @@ MICHELUDAS/PROYECTO/
 - **Node.js** - Runtime de JavaScript
 - **Express.js** - Framework web
 - **PostgreSQL** - Base de datos relacional
+- **Socket.IO** - Comunicación en tiempo real bidireccional
 - **JWT** - Autenticación con tokens
 - **bcrypt** - Encriptación de contraseñas
 - **CORS** - Cross-Origin Resource Sharing
@@ -64,6 +69,7 @@ MICHELUDAS/PROYECTO/
 - **React 19** - Biblioteca de UI
 - **Vite** - Build tool y dev server
 - **React Router DOM** - Enrutamiento
+- **Socket.IO Client** - Cliente WebSocket para tiempo real
 - **Axios** - Cliente HTTP
 - **CSS3** - Estilos con animaciones
 
@@ -129,7 +135,7 @@ npm install
 
 #### Frontend
 ```bash
-cd ../React/mi-app-react
+cd ../React
 npm install
 ```
 
@@ -146,7 +152,7 @@ npm run dev
 
 #### Terminal 2 - Frontend
 ```bash
-cd React/mi-app-react
+cd React
 npm run dev
 # Aplicación en http://localhost:5173
 ```
@@ -161,7 +167,7 @@ npm start
 
 #### Frontend
 ```bash
-cd React/mi-app-react
+cd React
 npm run build
 npm run preview
 ```
@@ -190,6 +196,11 @@ Content-Type: application/json
 }
 ```
 
+**Roles disponibles:**
+- `role_id: 1` - **ADMIN**: Acceso completo a todas las secciones
+- `role_id: 2` - **CAJA**: Acceso a Mesas, Productos, Inventario y gestión de caja
+- `role_id: 3` - **MESERO**: Acceso solo a Mesas (pestaña Zonas)
+
 ### 2. Iniciar Sesión
 
 Accede a http://localhost:5173 e ingresa:
@@ -198,36 +209,54 @@ Accede a http://localhost:5173 e ingresa:
 
 ## 🎯 Funcionalidades Principales
 
-### Sistema de Autenticación
+### Sistema de Autenticación y Roles
 - Login con JWT
 - Contraseñas encriptadas con bcrypt
-- Rutas protegidas
-- Roles de usuario (Admin, Usuario)
+- Rutas protegidas por rol
+- **Control de acceso granular:**
+  - **ADMIN**: Acceso total (Mesas, Productos, Inventario, Reportes, Usuarios)
+  - **CAJA**: Mesas, Productos, Inventario + Gestión de sesión de caja
+  - **MESERO**: Solo Mesas (pestaña Zonas)
 
-### Dashboard
-- Menú lateral con navegación
-- Vista de mesas en tiempo real
-- Acceso rápido a módulos principales
+### Dashboard Dinámico
+- Menú lateral filtrado por rol del usuario
+- **Sesión de caja global**: Una sola sesión activa para todo el sistema
+- **Actualizaciones en tiempo real** con Socket.IO
+- Bloqueo automático de secciones no autorizadas
+- Polling cada 15 segundos + eventos WebSocket
 
-### Gestión de Mesas
-- Visualización de estado de mesas
-- Asignación de órdenes
-- Control de ocupación
+### Gestión de Mesas (Tiempo Real)
+- **Sincronización automática** de cambios en todas las sesiones
+- Visualización de estado de mesas (Disponible/Ocupada/Reservada)
+- Creación y cierre de sesiones de mesa
+- Pedidos visibles instantáneamente para CAJA y ADMIN
+- Control de ocupación con eventos en vivo
 
 ### Gestión de Inventario
-- Control de stock
+- Control de stock en tiempo real
 - Alertas de bajo inventario
 - Registro de proveedores
+- Protegido por roles (ADMIN y CAJA)
 
 ### Gestión de Productos
 - Catálogo de productos
 - Precios y categorías
 - Activación/desactivación
+- Protegido por roles (ADMIN y CAJA)
 
-### Ventas y Tickets
-- Generación de tickets
-- Registro de ventas
+### Ventas y Tickets (Tiempo Real)
+- **Generación de tickets sincronizada** en todas las sesiones
+- **Aprobación de pedidos** visible instantáneamente
+- **Generación de facturas** cierra la mesa para todos
+- Registro automático de ventas
 - Historial de transacciones
+
+### Sesiones de Caja
+- **Una sola sesión global activa** por vez
+- Apertura con monto inicial
+- Cierre con monto final y notas
+- **Sincronización automática** del estado en todos los clientes
+- Obligatoria para CAJA y MESERO
 
 ### Reportes
 - Estadísticas de ventas
@@ -306,50 +335,3 @@ Para reportar bugs o solicitar nuevas funcionalidades, por favor abre un issue e
 ---
 
 ⭐ Si este proyecto te fue útil, considera darle una estrella en GitHub
-
-### Prerequisites
-- Node.js
-- npm (Node Package Manager)
-
-### Installation
-
-1. Clone the repository:
-   ```
-   git clone https://github.com/Taborda18/MicheludasV1.git
-   ```
-
-2. Navigate to the backend directory and install dependencies:
-   ```
-   cd MicheludasV1/backend
-   npm install
-   ```
-
-3. Navigate to the frontend directory and install dependencies:
-   ```
-   cd ../frontend
-   npm install
-   ```
-
-### Running the Application
-
-1. Start the backend server:
-   ```
-   cd MicheludasV1/backend
-   node src/app.js
-   ```
-
-2. Start the frontend application:
-   ```
-   cd ../frontend
-   npm start
-   ```
-
-### Features
-- Manage orders, products, and tables through a user-friendly interface.
-- Real-time updates and interactions between the frontend and backend.
-
-### Contributing
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or features.
-
-### License
-This project is licensed under the ISC License.

@@ -1,6 +1,7 @@
 const Ticket = require('../models/Ticket');
 const TicketDetail = require('../models/TicketDetail');
 const Inventory = require('../models/Inventory');
+const { getIO } = require('../utils/socket');
 
 const ticketController = {
     // Obtener todos los tickets
@@ -53,6 +54,7 @@ const ticketController = {
     createTicket: async (req, res) => {
         try {
             const newTicket = await Ticket.create(req.body);
+            try { getIO().emit('ticket:changed', { session_id: newTicket.session_id, action: 'created' }); } catch {}
             res.status(201).json(newTicket);
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -71,6 +73,7 @@ const ticketController = {
             if (!updatedTicket) {
                 return res.status(404).json({ message: 'Ticket not found' });
             }
+            try { getIO().emit('ticket:changed', { session_id: updatedTicket.session_id, action: 'status', status }); } catch {}
             res.json(updatedTicket);
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -80,7 +83,10 @@ const ticketController = {
     // Eliminar ticket
     deleteTicket: async (req, res) => {
         try {
-            await Ticket.delete(req.params.id);
+            const id = req.params.id;
+            const existing = await Ticket.findById(id);
+            await Ticket.delete(id);
+            try { getIO().emit('ticket:changed', { session_id: existing?.session_id, action: 'deleted' }); } catch {}
             res.json({ message: 'Ticket deleted successfully' });
         } catch (error) {
             res.status(500).json({ error: error.message });

@@ -1,14 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const inventoryController = require('../controllers/inventoryController');
+const authMiddleware = require('../middleware/authMiddleware');
+const roleGate = require('../middleware/roleGate');
 
-// Rutas de inventario
-router.get('/', inventoryController.getAllInventory);
-router.get('/low-stock', inventoryController.getLowStockItems);
-router.get('/:id', inventoryController.getInventoryById);
-router.post('/', inventoryController.createInventoryItem);
-router.put('/:id', inventoryController.updateInventoryItem);
-router.patch('/:id/stock', inventoryController.updateStock);
-router.delete('/:id', inventoryController.deleteInventoryItem);
+const ADMIN_CAJA = [1, 2];
+
+// Rutas de inventario - solo ADMIN y CAJA
+router.get('/', authMiddleware.verifyToken, roleGate(ADMIN_CAJA), inventoryController.getAllInventory);
+router.get('/low-stock', authMiddleware.verifyToken, roleGate(ADMIN_CAJA), inventoryController.getLowStockItems);
+router.get('/:id', authMiddleware.verifyToken, roleGate(ADMIN_CAJA), inventoryController.getInventoryById);
+router.post('/', authMiddleware.verifyToken, roleGate(ADMIN_CAJA), inventoryController.createInventoryItem);
+router.put('/:id', authMiddleware.verifyToken, roleGate(ADMIN_CAJA), inventoryController.updateInventoryItem);
+router.patch('/:id/stock', authMiddleware.verifyToken, roleGate(ADMIN_CAJA), inventoryController.updateStock);
+router.delete('/:id', authMiddleware.verifyToken, roleGate(ADMIN_CAJA), inventoryController.deleteInventoryItem);
 
 module.exports = router;

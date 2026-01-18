@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import api from '../../services/api';
 import Modal from '../../components/common/Modal';
 import CreateSessionModal from './CreateSessionModal';
@@ -6,8 +6,16 @@ import CreateOrderModal from './CreateOrderModal';
 import OrderDetailsModal from './OrderDetailsModal';
 import './Orders.css';
 import MesaAltaIcon from '../../assets/images/mesa-alta.webp';
+import socket from '../../services/socket';
+import { AuthContext } from '../../context/AuthContext';
 
 const Orders = () => {
+    const { user } = useContext(AuthContext);
+    const userRole = user?.role_id ? Number(user.role_id) : null;
+    
+    // MESERO (3) solo ve "Zonas", ADMIN (1) y CAJA (2) ven ambas tabs
+    const canSeePedidos = userRole === 1 || userRole === 2;
+    
     const [sessions, setSessions] = useState([]);
     const [sessionsWithPending, setSessionsWithPending] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -27,7 +35,35 @@ const Orders = () => {
     useEffect(() => {
         fetchSessions();
         fetchSessionsWithPending();
-    }, []);
+
+        // Suscribir eventos en tiempo real
+        const handleSessionsChanged = () => {
+            fetchSessions();
+            fetchSessionsWithPending();
+        };
+        const handleTicketsChanged = ({ session_id }) => {
+            // Si estamos viendo detalles de esa sesión, mantenerlos frescos
+            if (isDetailsModalOpen && selectedSession?.id === session_id) {
+                // Delegar refresco al modal mediante prop onSuccess
+                // Aquí solo actualizamos la lista de sesiones con pendientes
+            }
+            fetchSessionsWithPending();
+        };
+        const handleInvoiceCreated = () => {
+            fetchSessions();
+            fetchSessionsWithPending();
+        };
+
+        socket.on('orderSession:changed', handleSessionsChanged);
+        socket.on('ticket:changed', handleTicketsChanged);
+        socket.on('invoice:created', handleInvoiceCreated);
+
+        return () => {
+            socket.off('orderSession:changed', handleSessionsChanged);
+            socket.off('ticket:changed', handleTicketsChanged);
+            socket.off('invoice:created', handleInvoiceCreated);
+        };
+    }, [isDetailsModalOpen, selectedSession]);
 
     const fetchSessions = async () => {
         try {
@@ -134,12 +170,14 @@ const Orders = () => {
                 >
                     📍 Zonas
                 </button>
-                <button
-                    className={`tab-btn ${activeTab === 'pedidos' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('pedidos')}
-                >
-                    📋 Pedidos {totalPendingTickets > 0 && <span className="badge-count">{totalPendingTickets}</span>}
-                </button>
+                {canSeePedidos && (
+                    <button
+                        className={`tab-btn ${activeTab === 'pedidos' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('pedidos')}
+                    >
+                        📋 Pedidos {totalPendingTickets > 0 && <span className="badge-count">{totalPendingTickets}</span>}
+                    </button>
+                )}
             </div>
 
             {/* Header con acciones */}

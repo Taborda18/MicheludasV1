@@ -5,6 +5,7 @@ import { cashSessionService } from '../../services/cashSessionService';
 import { AuthContext } from '../../context/AuthContext';
 import TableDetailsModal from './TableDetailsModal';
 import './OrderDetailsModal.css';
+import socket from '../../services/socket';
 
 const OrderDetailsModal = ({ session, onClose, onSuccess, showAlert }) => {
     const { user } = useContext(AuthContext);
@@ -17,6 +18,20 @@ const OrderDetailsModal = ({ session, onClose, onSuccess, showAlert }) => {
 
     useEffect(() => {
         loadTickets();
+
+        const refreshIfSame = ({ session_id }) => {
+            if (session_id === session.id) {
+                loadTickets();
+            }
+        };
+        socket.on('ticket:changed', refreshIfSame);
+        socket.on('orderSession:changed', refreshIfSame);
+        socket.on('invoice:created', refreshIfSame);
+        return () => {
+            socket.off('ticket:changed', refreshIfSame);
+            socket.off('orderSession:changed', refreshIfSame);
+            socket.off('invoice:created', refreshIfSame);
+        };
     }, [session.id]);
 
     const loadTickets = async () => {
@@ -75,11 +90,11 @@ const OrderDetailsModal = ({ session, onClose, onSuccess, showAlert }) => {
                 return;
             }
 
-            // Obtener sesión de caja abierta del usuario (solo para CAJA y MESERO)
+            // Obtener sesión de caja abierta de forma GLOBAL (CAJA/MESERO)
             let cashSessionId = null;
             if (user.role_id === 2 || user.role_id === 3) {
                 try {
-                    const openSessions = await cashSessionService.getOpenByUser(user.id);
+                    const openSessions = await cashSessionService.getOpen();
                     if (openSessions && openSessions.length > 0) {
                         cashSessionId = openSessions[0].id;
                     }

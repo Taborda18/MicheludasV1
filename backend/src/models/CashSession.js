@@ -16,6 +16,13 @@ class CashSession {
         return result.rows[0];
     }
 
+    static async findOpen() {
+        const result = await pool.query(
+            "SELECT * FROM cash_sessions WHERE status = 'Open' ORDER BY opened_at DESC"
+        );
+        return result.rows;
+    }
+
     static async findOpenByUser(user_id) {
         const result = await pool.query(
             "SELECT * FROM cash_sessions WHERE user_id = $1 AND status = 'Open' ORDER BY opened_at DESC",

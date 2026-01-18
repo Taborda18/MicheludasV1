@@ -1,4 +1,5 @@
 const OrderSession = require('../models/OrderSession');
+const { getIO } = require('../utils/socket');
 
 const orderSessionController = {
     // Obtener todas las sesiones
@@ -71,6 +72,7 @@ const orderSessionController = {
     createSession: async (req, res) => {
         try {
             const newSession = await OrderSession.create(req.body);
+            try { getIO().emit('orderSession:changed', { action: 'created', session_id: newSession.id }); } catch {}
             res.status(201).json(newSession);
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -84,6 +86,7 @@ const orderSessionController = {
             if (!updatedSession) {
                 return res.status(404).json({ message: 'Session not found' });
             }
+            try { getIO().emit('orderSession:changed', { action: 'updated', session_id: updatedSession.id }); } catch {}
             res.json(updatedSession);
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -98,6 +101,7 @@ const orderSessionController = {
             if (!updatedSession) {
                 return res.status(404).json({ message: 'Session not found' });
             }
+            try { getIO().emit('orderSession:changed', { action: 'status', session_id: updatedSession.id, status }); } catch {}
             res.json(updatedSession);
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -107,7 +111,9 @@ const orderSessionController = {
     // Eliminar sesión
     deleteSession: async (req, res) => {
         try {
-            await OrderSession.delete(req.params.id);
+            const id = req.params.id;
+            await OrderSession.delete(id);
+            try { getIO().emit('orderSession:changed', { action: 'deleted', session_id: id }); } catch {}
             res.json({ message: 'Session deleted successfully' });
         } catch (error) {
             res.status(500).json({ error: error.message });

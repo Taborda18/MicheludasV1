@@ -1,12 +1,13 @@
 # Micheludas Backend API
 
-API REST para el sistema de gestión de bar Micheludas. Construido con Node.js, Express y PostgreSQL.
+API REST para el sistema de gestión de bar Micheludas. Construido con Node.js, Express, PostgreSQL y Socket.IO para actualizaciones en tiempo real.
 
 ## 🚀 Tecnologías
 
 - **Node.js** - Runtime de JavaScript
 - **Express** - Framework web
 - **PostgreSQL** - Base de datos relacional
+- **Socket.IO** - Comunicación en tiempo real
 - **JWT** - Autenticación con tokens
 - **bcrypt** - Encriptación de contraseñas
 - **CORS** - Cross-Origin Resource Sharing
@@ -16,7 +17,7 @@ API REST para el sistema de gestión de bar Micheludas. Construido con Node.js, 
 ```
 backend/
 ├── src/
-│   ├── app.js                 # Punto de entrada de la aplicación
+│   ├── app.js                 # Punto de entrada con Socket.IO
 │   ├── config/
 │   │   └── database.js        # Configuración de PostgreSQL
 │   ├── controllers/           # Lógica de negocio
@@ -28,7 +29,8 @@ backend/
 │   │   ├── orderSessionController.js
 │   │   ├── ticketController.js
 │   │   ├── ticketDetailController.js
-│   │   └── invoiceController.js
+│   │   ├── invoiceController.js
+│   │   └── cashSessionController.js
 │   ├── models/                # Modelos de datos
 │   │   ├── User.js
 │   │   ├── Role.js
@@ -38,7 +40,9 @@ backend/
 │   │   ├── OrderSession.js
 │   │   ├── Ticket.js
 │   │   ├── TicketDetail.js
-│   │   └── Invoice.js
+│   │   ├── Invoice.js
+│   │   ├── CashSession.js
+│   │   └── ProductIngredient.js
 │   ├── routes/                # Definición de rutas
 │   │   ├── userRoutes.js
 │   │   ├── roleRoutes.js
@@ -49,13 +53,17 @@ backend/
 │   │   ├── tableRoutes.js
 │   │   ├── ticketRoutes.js
 │   │   ├── ticketDetailRoutes.js
-│   │   └── invoiceRoutes.js
+│   │   ├── invoiceRoutes.js
+│   │   ├── cashSessionRoutes.js
+│   │   └── productIngredientRoutes.js
 │   ├── middleware/            # Middlewares
-│   │   ├── authMiddleware.js  # Verificación de tokens y roles
+│   │   ├── authMiddleware.js  # Verificación de tokens JWT
+│   │   ├── roleGate.js        # Control de acceso por roles
 │   │   └── errorHandler.js    # Manejo de errores
 │   └── utils/                 # Utilidades
 │       ├── hashHelper.js      # Encriptación bcrypt
-│       └── jwtHelper.js       # Generación y verificación JWT
+│       ├── jwtHelper.js       # Generación y verificación JWT
+│       └── socket.js          # Configuración de Socket.IO
 ├── database/                  # Scripts de base de datos
 ├── package.json
 └── README.md
@@ -179,12 +187,67 @@ npm start
 - `PUT /api/invoices/:id` - Actualizar factura
 - `DELETE /api/invoices/:id` - Eliminar factura
 
-## 🔒 Seguridad
+### Sesiones de Caja
+- `GET /api/cash-sessions` - Listar todas las sesiones
+- `GET /api/cash-sessions/open` - Obtener sesión de caja abierta (global)
+- `GET /api/cash-sessions/open/:userId` - Sesiones abiertas por usuario
+- `GET /api/cash-sessions/:id` - Obtener sesión por ID
+- `GET /api/cash-sessions/:id/summary` - Resumen de ventas de la sesión
+- `POST /api/cash-sessions/open` - Abrir sesión de caja (único global)
+- `PATCH /api/cash-sessions/:id/close` - Cerrar sesión de caja
+
+**Nota**: Solo puede haber una sesión de caja abierta a la vez en el sistema (validación global).
+
+## ⚡ Tiempo Real con Socket.IO
 
 - **Contraseñas**: Encriptadas con bcrypt (10 salt rounds)
 - **JWT**: Tokens con expiración configurable (default 24h)
-- **Middleware de autenticación**: Protección de rutas sensibles
-- **Roles**: Control de acceso basado en roles (Admin, Usuario)
+- **Middleware de autenticación**: Protección de rutas sensibles con `authMiddleware.verifyToken`
+- **Control de acceso por roles**: Middleware `roleGate` valida permisos antes de ejecutar endpoints
+
+### Roles del Sistema
+
+1. **ADMIN (role_id=1)**: Acceso completo a todos los recursos
+2. **CAJA (role_id=2)**: Acceso a mesas, tickets, productos, inventario, sesiones de caja
+3. **MESERO (role_id=3)**: Acceso a mesas, tickets (crear pedidos), solo vista "Zonas"
+
+### Rutas Protegidas por Rol
+
+- **Sesiones de Mesa / Tickets**: `[ADMIN, CAJA, MESERO]` (lectura/escritura), `[ADMIN, CAJA]` (eliminación)
+- **Productos**: `[ADMIN, CAJA, MESERO]` (lectura), `[ADMIN, CAJA]` (escritura)
+- **Inventario**: `[ADMIN, CAJA]` únicamente
+- **Usuarios**: `[ADMIN]` únicamente
+- **Sesiones de Caja**: `[ADMIN, CAJA, MESERO]` (consulta), apertura/cierre validado globalmente
+
+## ⚡ Tiempo Real con Socket.IO
+
+El backend emite eventos Socket.IO cuando ocurren cambios en:
+
+### Eventos de Sesiones de Mesa
+- `orderSession:changed` - Cuando se crea, actualiza, cierra o elimina una mesa
+  ```js
+  { action: 'created' | 'updated' | 'status' | 'deleted', session_id, status? }
+  ```
+
+### Eventos de Tickets
+- `ticket:changed` - Cuando se crea, aprueba o elimina un ticket
+  ```js
+  { session_id, action: 'created' | 'status' | 'deleted', status? }
+  ```
+
+### Eventos de Facturas
+- `invoice:created` - Cuando se genera una factura y se cierra una mesa
+  ```js
+  { session_id, invoice_id }
+  ```
+
+### Eventos de Caja
+- `cashSession:changed` - Cuando se abre o cierra una sesión de caja
+  ```js
+  { action: 'opened' | 'closed', session_id }
+  ```
+
+Los clientes conectados reciben actualizaciones instantáneas sin necesidad de refrescar manualmente.
 
 ## 🧪 Pruebas con Postman
 
