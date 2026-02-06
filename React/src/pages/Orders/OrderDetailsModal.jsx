@@ -58,7 +58,7 @@ const OrderDetailsModal = ({ session, onClose, onSuccess, showAlert }) => {
 
     const calculateTicketTotal = (ticket) => {
         if (!ticket.details || ticket.details.length === 0) return 0;
-        return ticket.details.reduce((sum, detail) => 
+        return ticket.details.reduce((sum, detail) =>
             sum + (detail.quantity * detail.unit_price_at_sale), 0
         );
     };
@@ -67,16 +67,31 @@ const OrderDetailsModal = ({ session, onClose, onSuccess, showAlert }) => {
         try {
             await orderService.updateTicketStatus(ticketId, 'Approved');
             showAlert('success', 'Aprobado', 'Pedido aprobado y agregado a la cuenta');
-            
+
             // Recargar y verificar si quedan pendientes
             const updatedData = await orderService.getTicketsBySession(session.id);
             const remainingPending = updatedData.filter(t => t.status === 'Pending');
-            
+
             // Mantener el modal abierto: solo recargar contenido
             loadTickets();
         } catch (error) {
             console.error('Error al aprobar ticket:', error);
             showAlert('error', 'Error', 'No se pudo aprobar el pedido');
+        }
+    };
+
+    const handleRejectTicket = async (ticketId) => {
+        try {
+            await orderService.updateTicketStatus(ticketId, 'Rejected');
+            showAlert('warning', 'Rechazado', 'Pedido rechazado exitosamente');
+            socket.emit('ticket:changed', { session_id: session.id });
+
+            loadTickets();
+
+            onSuccess?.();
+        } catch (error) {
+            console.error('Error al rechazar ticket:', error);
+            showAlert('error', 'Error', 'No se pudo rechazar el pedido');
         }
     };
 
@@ -102,7 +117,7 @@ const OrderDetailsModal = ({ session, onClose, onSuccess, showAlert }) => {
                     console.error('Error al obtener sesión de caja:', error);
                 }
             }
-            
+
             // Crear factura y cerrar mesa
             await invoiceService.generateInvoice({
                 session_id: session.id,
@@ -113,7 +128,7 @@ const OrderDetailsModal = ({ session, onClose, onSuccess, showAlert }) => {
             });
 
             showAlert('success', 'Factura Generada', 'Venta cerrada y mesa lista para nuevo cliente');
-            
+
             // Cerrar el modal y actualizar
             setTimeout(() => {
                 onSuccess?.();
@@ -188,9 +203,9 @@ const OrderDetailsModal = ({ session, onClose, onSuccess, showAlert }) => {
                                                 <span className="ticket-status pending">Pendiente</span>
                                             </div>
                                             <span className="ticket-time">
-                                                {new Date(ticket.created_at).toLocaleTimeString('es-CO', { 
-                                                    hour: '2-digit', 
-                                                    minute: '2-digit' 
+                                                {new Date(ticket.created_at).toLocaleTimeString('es-CO', {
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
                                                 })}
                                             </span>
                                         </div>
@@ -214,12 +229,21 @@ const OrderDetailsModal = ({ session, onClose, onSuccess, showAlert }) => {
                                                 <span>Subtotal</span>
                                                 <strong>{formatPrice(calculateTicketTotal(ticket))}</strong>
                                             </div>
-                                            <button
-                                                className="btn-approve"
-                                                onClick={() => handleApproveTicket(ticket.id)}
-                                            >
-                                                ✓ Aprobar
-                                            </button>
+                                            <div className="ticket-actions">
+                                                <button
+                                                    className="btn-reject"
+                                                    onClick={() => handleRejectTicket(ticket.id)}
+                                                    title="Rechazar pedido"
+                                                >
+                                                    ✕ Rechazar
+                                                </button>
+                                                <button
+                                                    className="btn-approve"
+                                                    onClick={() => handleApproveTicket(ticket.id)}
+                                                >
+                                                    ✓ Aprobar
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
@@ -267,7 +291,7 @@ const OrderDetailsModal = ({ session, onClose, onSuccess, showAlert }) => {
                                         <strong>{formatPrice(totalApproved)}</strong>
                                     </div>
                                 )}
-                                
+
                                 <div className="total-row pending-total">
                                     <span>Pendiente</span>
                                     <strong>{formatPrice(totalPending)}</strong>
@@ -281,7 +305,7 @@ const OrderDetailsModal = ({ session, onClose, onSuccess, showAlert }) => {
 
                             {approvedTickets.length > 0 && (
                                 <div className="detail-mesa-action">
-                                    <button 
+                                    <button
                                         className="btn-detail-mesa"
                                         onClick={() => setShowTableDetails(true)}
                                         title="Ver detalle de productos por ronda"
@@ -304,7 +328,7 @@ const OrderDetailsModal = ({ session, onClose, onSuccess, showAlert }) => {
                                             <option value="transfer">Transferencia</option>
                                         </select>
                                     </div>
-                                    <button 
+                                    <button
                                         className="btn-generate-invoice"
                                         onClick={handleGenerateInvoice}
                                         disabled={generating || tickets.length > 0}
@@ -319,8 +343,8 @@ const OrderDetailsModal = ({ session, onClose, onSuccess, showAlert }) => {
                 </div>
 
                 {showTableDetails && (
-                    <TableDetailsModal 
-                        session={session} 
+                    <TableDetailsModal
+                        session={session}
                         approvedTickets={approvedTickets}
                         onClose={() => {
                             setShowTableDetails(false);

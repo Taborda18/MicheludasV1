@@ -146,6 +146,24 @@ const Orders = () => {
         }).format(price || 0);
     };
 
+    // Calcular el subtotal de la mesa
+    const calculateSessionSubtotal = (session) => {
+        if (!session.tickets) return 0;
+        
+        // Excluir tickets rechazados del cálculo
+        const validTickets = session.tickets.filter(
+            ticket => ticket.status !== 'Rejected'
+        );
+        
+        return validTickets.reduce((total, ticket) => {
+            if (!ticket.details) return total;
+            const ticketTotal = ticket.details.reduce((sum, detail) => 
+                sum + (detail.quantity * detail.unit_price_at_sale), 0
+            );
+            return total + ticketTotal;
+        }, 0);
+    };
+
     // Calcular el total de pedidos pendientes
     const totalPendingTickets = sessionsWithPending.reduce((sum, session) => sum + session.pending_tickets_count, 0);
 

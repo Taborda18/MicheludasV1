@@ -30,6 +30,7 @@ class Ticket {
              FROM tickets t 
              LEFT JOIN users u ON t.waiter_id = u.id 
              WHERE t.session_id = $1 
+               AND t.status != 'Rejected'
              ORDER BY t.created_at DESC`,
             [session_id]
         );

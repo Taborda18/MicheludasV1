@@ -95,6 +95,7 @@ class OrderSession {
                        COALESCE(SUM(td.quantity * td.unit_price_at_sale), 0)::numeric as total_amount
                 FROM tickets t
                 LEFT JOIN ticket_details td ON t.id = td.ticket_id
+                WHERE t.status != 'Rejected'
                 GROUP BY t.session_id
              ) total_stats ON os.id = total_stats.session_id
              WHERE os.status = 'Open'
