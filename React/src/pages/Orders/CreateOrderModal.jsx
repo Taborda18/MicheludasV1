@@ -32,6 +32,7 @@ const CreateOrderModal = ({ session, onClose, onSuccess, showAlert }) => {
     const filteredProducts = useMemo(() => {
         const query = search.toLowerCase();
         return products.filter((product) =>
+            (Number(product.stock || 0) > 0) &&
             product.name.toLowerCase().includes(query)
         );
     }, [products, search]);

@@ -60,6 +60,60 @@ class Inventory {
         await pool.query('DELETE FROM inventory WHERE id = $1', [id]);
         return { message: 'Inventory item deleted successfully' };
     }
+
+    // Verificar stock disponible para un producto
+    static async checkProductStock(productId, quantity = 1) {
+        const result = await pool.query(
+            `SELECT pi.*, i.stock, i.name as inventory_name
+             FROM product_ingredients pi
+             JOIN inventory i ON pi.inventory_id = i.id
+             WHERE pi.product_id = $1`,
+            [productId]
+        );
+
+        const ingredients = result.rows;
+        const insufficientStock = [];
+
+        for (const ingredient of ingredients) {
+            const amountRequired = ingredient.quantity_required * quantity;
+            if (ingredient.stock < amountRequired) {
+                insufficientStock.push({
+                    inventory_name: ingredient.inventory_name,
+                    available: ingredient.stock,
+                    required: amountRequired,
+                    unit_measure: ingredient.unit_measure,
+                    message: `No hay suficiente "${ingredient.inventory_name}". Disponible: ${ingredient.stock}, Requerido: ${amountRequired}`
+                });
+            }
+        }
+
+        return {
+            hasStock: insufficientStock.length === 0,
+            insufficientStock
+        };
+    }
+
+    // Descontar stock de ingredientes de un producto
+    static async deductProductStock(productId, quantity = 1) {
+        const result = await pool.query(
+            `SELECT pi.inventory_id, pi.quantity_required
+             FROM product_ingredients pi
+             WHERE pi.product_id = $1`,
+            [productId]
+        );
+
+        const ingredients = result.rows;
+    
+        for (const ingredient of ingredients) {
+            const amountToDeduct = ingredient.quantity_required * quantity;
+            await pool.query(
+                'UPDATE inventory SET stock = stock - $1, update_date = NOW() WHERE id = $2',
+                [amountToDeduct, ingredient.inventory_id]
+            );
+        }
+
+        return { success: true };
+    }
 }
 
 module.exports = Inventory;

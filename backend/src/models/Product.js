@@ -2,17 +2,34 @@ const { pool } = require('../config/database');
 
 class Product {
     static async findAll() {
-        const result = await pool.query('SELECT * FROM products ORDER BY name');
+        const result = await pool.query(
+            `SELECT p.*, COALESCE(i.stock, 0) as stock
+             FROM products p
+             LEFT JOIN inventory i ON i.id = p.id
+             ORDER BY p.name`
+        );
         return result.rows;
     }
 
     static async findActive() {
-        const result = await pool.query('SELECT * FROM products WHERE is_active = true ORDER BY name');
+        const result = await pool.query(
+            `SELECT p.*, COALESCE(i.stock, 0) as stock
+             FROM products p
+             LEFT JOIN inventory i ON i.id = p.id
+             WHERE p.is_active = true
+             ORDER BY p.name`
+        );
         return result.rows;
     }
 
     static async findById(id) {
-        const result = await pool.query('SELECT * FROM products WHERE id = $1', [id]);
+        const result = await pool.query(
+            `SELECT p.*, COALESCE(i.stock, 0) as stock
+             FROM products p
+             LEFT JOIN inventory i ON i.id = p.id
+             WHERE p.id = $1`,
+            [id]
+        );
         return result.rows[0];
     }
 

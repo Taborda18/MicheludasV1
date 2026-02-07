@@ -84,10 +84,7 @@ class Invoice {
 
             const { session_id, cashier_id, total_amount, payment_method, cash_session_id = null } = invoiceData;
 
-            // Paso 1: Descontar inventario para todos los tickets aprobados
-            await this.deductInventoryForSession(client, session_id);
-
-            // Paso 2: Crear factura
+            // Paso 1: Crear factura (el inventario ya se descuenta al aprobar)
             const invoiceInsert = await client.query(
                 'INSERT INTO invoices (session_id, cashier_id, total_amount, payment_method, cash_session_id, created_at) VALUES ($1, $2, $3, $4, $5, NOW()) ON CONFLICT (session_id) DO NOTHING RETURNING *',
                 [session_id, cashier_id, total_amount, payment_method, cash_session_id]
@@ -100,7 +97,7 @@ class Invoice {
                 existingInvoice = existing.rows[0];
             }
 
-            // Paso 3: Cerrar sesión y limpiar tag
+            // Paso 2: Cerrar sesión y limpiar tag
             await client.query(
                 "UPDATE order_sessions SET status = 'Closed', tag = NULL WHERE id = $1",
                 [session_id]

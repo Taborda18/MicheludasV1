@@ -65,18 +65,36 @@ const OrderDetailsModal = ({ session, onClose, onSuccess, showAlert }) => {
 
     const handleApproveTicket = async (ticketId) => {
         try {
-            await orderService.updateTicketStatus(ticketId, 'Approved');
-            showAlert('success', 'Aprobado', 'Pedido aprobado y agregado a la cuenta');
-
-            // Recargar y verificar si quedan pendientes
-            const updatedData = await orderService.getTicketsBySession(session.id);
-            const remainingPending = updatedData.filter(t => t.status === 'Pending');
-
-            // Mantener el modal abierto: solo recargar contenido
-            loadTickets();
+            const response = await orderService.updateTicketStatus(ticketId, 'Approved');
+            
+            if (response?.success) {
+                showAlert('success', 'Aprobado', 'Pedido aprobado y agregado a la cuenta');
+                
+                // Emitir evento de cambio
+                socket.emit('ticket:changed', { session_id: session.id });
+                
+                // Recargar tickets
+                await loadTickets();
+                
+                // Notificar al padre
+                if (onSuccess) {
+                    onSuccess();
+                }
+            }
         } catch (error) {
             console.error('Error al aprobar ticket:', error);
-            showAlert('error', 'Error', 'No se pudo aprobar el pedido');
+            
+            // Manejar error de stock insuficiente
+            if (error.response?.status === 400 && error.response?.data?.error === 'Stock insuficiente') {
+                const { ingredient, available, required, message } = error.response.data;
+                showAlert(
+                    'error',
+                    '❌ Stock Insuficiente',
+                    message || `No hay suficiente "${ingredient}". Disponible: ${available}, Requerido: ${required}`
+                );
+            } else {
+                showAlert('error', 'Error', 'No se pudo aprobar el pedido');
+            }
         }
     };
 
