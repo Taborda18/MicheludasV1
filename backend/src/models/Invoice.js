@@ -127,6 +127,42 @@ class Invoice {
         );
         return result.rows;
     }
+
+    static async getSalesByPeriod({ period = 'daily', startDate, endDate, businessDayStartHour = 14 } = {}) {
+        const periodMap = {
+            daily: `DATE_TRUNC('day', created_at - INTERVAL '${businessDayStartHour} hours')`,
+            weekly: "DATE_TRUNC('week', created_at)",
+            monthly: "DATE_TRUNC('month', created_at)"
+        };
+
+        const periodExpression = periodMap[period] || periodMap.daily;
+        const filters = [];
+        const params = [];
+
+        if (startDate) {
+            params.push(startDate);
+            filters.push(`created_at::date >= $${params.length}`);
+        }
+        if (endDate) {
+            params.push(endDate);
+            filters.push(`created_at::date <= $${params.length}`);
+        }
+
+        const whereClause = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
+
+        const query = `
+            SELECT ${periodExpression} AS period,
+                   COUNT(*)::integer AS invoice_count,
+                   SUM(total_amount)::numeric(12,2) AS total_sales
+            FROM invoices
+            ${whereClause}
+            GROUP BY period
+            ORDER BY period DESC
+        `;
+
+        const result = await pool.query(query, params);
+        return result.rows;
+    }
 }
 
 module.exports = Invoice;

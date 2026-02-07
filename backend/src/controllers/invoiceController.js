@@ -104,6 +104,21 @@ const invoiceController = {
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
+    },
+
+    getSalesByPeriodReport: async (req, res) => {
+        try {
+            const { period, startDate, endDate, businessDayStartHour } = req.query;
+            const report = await Invoice.getSalesByPeriod({
+                period,
+                startDate,
+                endDate,
+                businessDayStartHour: businessDayStartHour ? Number(businessDayStartHour) : undefined
+            });
+            res.json(report);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
     }
 };
 
