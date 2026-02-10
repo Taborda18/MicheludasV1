@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { connectDB } = require('./config/database');
+const { runMigrations } = require('../database/migrations');
 
 // Importar rutas
 const roleRoutes = require('./routes/roleRoutes');
@@ -63,6 +64,10 @@ app.get('/', (req, res) => {
 const startServer = async () => {
     try {
         await connectDB();
+        
+        // Ejecutar migraciones de base de datos
+        await runMigrations();
+        
         const server = http.createServer(app);
         initSocket(server);
         server.listen(PORT, () => {
