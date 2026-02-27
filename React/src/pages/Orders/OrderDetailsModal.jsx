@@ -259,7 +259,7 @@ const OrderDetailsModal = ({ session, onClose, onSuccess, showAlert }) => {
                                                     className="btn-approve"
                                                     onClick={() => handleApproveTicket(ticket.id)}
                                                 >
-                                                    ✓ Aprobarrr
+                                                    ✓ Aprobar
                                                 </button>
                                             </div>
                                         </div>
