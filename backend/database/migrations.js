@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const { pool } = require('../config/database');
+const { pool } = require('../src/config/database');
 
 /**
  * Ejecuta el script de migración de la base de datos

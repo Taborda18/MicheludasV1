@@ -134,3 +134,21 @@ CREATE INDEX IF NOT EXISTS idx_invoices_session_id ON invoices(session_id);
 CREATE INDEX IF NOT EXISTS idx_invoices_cashier_id ON invoices(cashier_id);
 CREATE INDEX IF NOT EXISTS idx_invoices_cash_session_id ON invoices(cash_session_id);
 CREATE INDEX IF NOT EXISTS idx_cash_sessions_user_id ON cash_sessions(user_id);
+
+-- Datos por defecto (idempotente)
+INSERT INTO roles (name)
+VALUES ('Admin')
+ON CONFLICT (name) DO NOTHING;
+
+-- Usuario administrador por defecto: admin / admin123
+INSERT INTO users (username, password_hash, role_id)
+SELECT
+    'admin',
+    '$2b$10$657ktF3A6Fo7wmDI/Js5seiAci2a47O23aBuu9IYwVbt3ATIzxpzu',
+    r.id
+FROM roles r
+WHERE r.name = 'Admin'
+ON CONFLICT (username) DO NOTHING;
+
+
+
